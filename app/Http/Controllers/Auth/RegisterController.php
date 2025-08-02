@@ -49,10 +49,14 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255', 'unique:users,name'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
+            'firstname' => ['required', 'string', 'max:255'],
+            'middlename' => ['nullable', 'string', 'max:255'],
+            'lastname' => ['required', 'string', 'max:255'],
+            'profile_picture' => ['nullable', 'image', 'max:2048'], 
+            ]);
     }
 
     /**
@@ -63,10 +67,22 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        $profilePicturePath = null;
+
+        if (request()->hasFile('profile_picture')) {
+            $profilePicturePath = request()->file('profile_picture')->store('profile_pictures', 'public');
+        }
+
         return User::create([
-            'name' => $data['name'],
+            'name' => $data['username'],
+            'firstname' => $data['firstname'],
+            'middlename' => $data['middlename'] ?? null,
+            'lastname' => $data['lastname'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'role_id' => 1,
+            'profile_picture' => $profilePicturePath,
         ]);
     }
+
 }

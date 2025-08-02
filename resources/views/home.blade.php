@@ -14,6 +14,14 @@
     {{-- Add here extra stylesheets --}}
     {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
 @stop
+@push('css')
+<style>
+    body.sidebar-collapse .sidebar-expanded-only {
+        display: none !important;
+    }
+</style>
+@endpush
+
 
 @section('js')
     <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
