@@ -11,35 +11,28 @@
     <style>
         body {
             position: relative;
-            background-image: url('{{ asset('storage/logo/logo.png') }}');
+            min-height: 100vh;
+            background-color: #064eb8ff; 
             background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            margin: 0;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1;
+            overflow: hidden;
         }
-        body::before {
+        /* body::before {
             content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(1, 6, 28, 0.94); 
-            z-index: -1;
-        }
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 0;
+        } */
         .register-wrapper {
             width: 600px;
             background-color: #002b66;
             padding: 2rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             color: white;
-            margin:40px;
-            border-radius: 5px;
+            /* border-radius: 5px; */
+            position: relative;
+            z-index: 1;
         }
         .form-control {
             background-color: #ccc;
@@ -76,8 +69,8 @@
     @endif
 </script>
 
-
-<div class="register-wrapper">
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; position: relative; z-index: 1;">
+    <div class="register-wrapper">
     <div class="text-center mb-4">
         <h4><b>Create Your Account</b></h4>
     </div>
@@ -148,6 +141,7 @@
     <p class="register-link">
         Already have an account? <a href="{{ route('login') }}" class="text-light"><strong>Login here</strong></a>
     </p>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>

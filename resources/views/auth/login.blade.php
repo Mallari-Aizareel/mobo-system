@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css">
     <style>
         body {
-            background-color: #001f4d; 
+            background-color: #064eb8ff; 
             display: flex;
             align-items: center;
             justify-content: center;
