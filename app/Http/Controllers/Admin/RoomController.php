@@ -67,4 +67,5 @@ class RoomController extends Controller
 
         return view('admin.room-info', compact('room', 'trainees'));
     }
+    
 }
