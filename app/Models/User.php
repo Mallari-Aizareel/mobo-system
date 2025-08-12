@@ -88,10 +88,11 @@ class User extends Authenticatable
         return isset($roles[$role]) && $this->role_id == $roles[$role];
     }
 
-    public function agencyRepresentative()
+    public function agencyRepresentatives()
     {
-        return $this->hasOne(AgencyRepresentative::class, 'agency_id');
+        return $this->hasMany(AgencyRepresentative::class, 'agency_id');
     }
+
 
     public function skills()
     {

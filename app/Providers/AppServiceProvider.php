@@ -94,6 +94,8 @@ class AppServiceProvider extends ServiceProvider
                 $menu = [
                     ['text' => 'Home', 'url' => 'agency/home', 'icon' => 'fas fa-home'],
                     ['text' => 'Dashboard', 'url' => 'agency/dashboard', 'icon' => 'fas fa-tachometer-alt'],
+                    ['text' => 'Manage Post', 'url' => 'agency/manage', 'icon' => 'fas fa-file-alt'],
+
                 ];
             }
         }

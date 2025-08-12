@@ -42,7 +42,7 @@
 
         case 3: 
             $profileRoute = route('agency.profile');
-            $settingsRoute = route('agency.edit');
+            $settingsRoute = route('agency.edit-info');
             $settingsLabel = 'Edit Info';
             break;
 
