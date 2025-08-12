@@ -34,7 +34,7 @@ class PortalAuthController extends Controller
             if ($user->role_id === 2) {
                 return redirect()->route('tesda.home');
             } elseif ($user->role_id === 3) {
-                return redirect()->route('agency.home');
+                return redirect()->route('agency.job-posts.index');
             } else {
                 Auth::logout();
                 return redirect()->route('portal.login')->withErrors([

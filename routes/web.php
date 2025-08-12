@@ -13,7 +13,10 @@ use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\EnrolledTraineeController;
 use App\Http\Controllers\Admin\AdminAgencyController;
 use App\Http\Controllers\Admin\RoomController;
-
+use App\Http\Controllers\Agency\JobPostController;
+use App\Http\Controllers\Agency\AgencyProfileController;
+use App\Http\Controllers\Tesda\TesdaProfileController;
+use App\Http\Controllers\Tesda\TesdaResumeController;
 Route::get('/', function () {
     return view('auth.login');
 });

@@ -11,14 +11,13 @@ use Illuminate\Support\Facades\Storage;
 
 class AgencyProfileController extends Controller
 {
-        public function index()
-    {
-        // Get currently logged-in user (agency)
-        $agency = Auth::user();
+public function index()
+{
+    $agency = Auth::user()->load('address');
+    return view('agency.profile', compact('agency'));
+}
 
-        // Pass the agency data to your profile.blade.php view
-        return view('agency.profile', compact('agency'));
-    }
+
     
     public function edit()
     {

@@ -116,7 +116,7 @@
                         <img 
                             src="{{ $user->background_picture 
                                 ? asset('storage/' . $user->background_picture) 
-                                : asset('storage/background_picture/default.jpg') }}" 
+                                : asset('storage/background_pictures/default.jpg') }}" 
                             class="profile-bg" 
                             alt="Background Image" 
                             id="backgroundPicturePreview"

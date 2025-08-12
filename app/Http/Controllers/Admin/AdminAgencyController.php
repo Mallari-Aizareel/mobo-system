@@ -10,7 +10,7 @@ class AdminAgencyController extends Controller
 {
     public function index()
     {
-        $agencies = User::with('agencyRepresentative')
+        $agencies = User::with('agencyRepresentatives')
             ->where('role_id', 3)
             ->get();
 

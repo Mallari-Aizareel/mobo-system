@@ -3,22 +3,23 @@
 @section('title', 'My Profile')
 
 @section('content_header')
-    <h4><i class="fas fa-user-circle"></i> MY PROFILE</h4>
+    {{-- Optional header, keep empty or add title --}}
 @stop
 
 @section('content')
 <style>
-    body { background-color: #e6e6e6; }
     .profile-header {
         position: relative;
         text-align: center;
     }
+
     .profile-bg {
         width: 100%;
         height: 250px;
         object-fit: cover;
-        border-radius: 0.2rem;
+        border-radius: 0.5rem;
     }
+
     .profile-picture {
         position: absolute;
         bottom: -60px;
@@ -31,120 +32,86 @@
         object-fit: cover;
         z-index: 2;
     }
-    .agency-name {
+
+    .profile-info {
         margin-top: 80px;
-        font-size: 26px;
-        font-weight: bold;
         text-align: center;
     }
-    .agency-info {
-        margin-top: 10px;
-        text-align: center;
+
+    .profile-info h3 {
+        margin-bottom: 0;
+    }
+
+    .profile-info span {
+        color: gray;
+        font-weight: 600;
+    }
+
+    .contact-info {
+        margin-top: 15px;
+    }
+
+    .contact-info p {
+        margin: 5px 0;
         font-size: 14px;
     }
-    .info-icon {
-        margin-right: 8px;
-    }
-    .section {
-        background: white;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-    .gallery img {
-        width: 100%;
-        border-radius: 5px;
-        object-fit: cover;
-    }
-    .post-card {
-        background: white;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        overflow: hidden;
-    }
-    .post-header {
-        padding: 10px;
-        font-weight: bold;
-    }
-    .post-image {
-        width: 100%;
-        object-fit: cover;
-    }
-    .post-footer {
-        padding: 10px;
-        display: flex;
-        justify-content: space-between;
+
+    .about-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 10px;
+        font-size: 15px;
     }
 </style>
 
-<div class="bg-white p-4 rounded shadow">
-    <div class="container">
-        {{-- Header --}}
-        <div class="card mb-4">
-            <div class="card-body p-0">
-                <div class="profile-header">
-                    <img src="{{ $agency->background_picture 
-                        ? asset('storage/' . $agency->background_picture) 
-                        : asset('storage/background_picture/default.jpg') }}" 
-                        class="profile-bg" alt="Background Image">
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+@endif
 
-                    <img src="{{ $agency->profile_picture 
-                        ? asset('storage/' . $agency->profile_picture) 
-                        : 'https://ui-avatars.com/api/?name='.urlencode($agency->name) }}" 
-                        alt="Profile" class="profile-picture">
-                </div>
+<div class="card">
+    <div class="card-body">
+        <div class="profile-header">
+            <img src="{{ $agency->background_picture 
+                ? asset('storage/' . $agency->background_picture) 
+                : asset('storage/background_pictures/default.jpg') }}" 
+                class="profile-bg" alt="Background Image">
+
+            <img src="{{ $agency->profile_picture 
+                ? asset('storage/' . $agency->profile_picture) 
+                : 'https://ui-avatars.com/api/?name='.urlencode($agency->name) }}" 
+                alt="Profile" class="profile-picture img-circle elevation-1">
+        </div>
+
+        <div class="profile-info">
+            <h3>{{ $agency->name }}</h3>
+            <span>Agency Profile</span>
+
+            <div class="contact-info">
+                <p><i class="fas fa-map-marker-alt"></i> <p><i class="fas fa-map-marker-alt"></i>
+@if($agency->address)
+    {{ $agency->address->street }}, 
+    {{ $agency->address->barangay }}, 
+    {{ $agency->address->city }}, 
+    {{ $agency->address->province }}, 
+    {{ $agency->address->country }}
+@else
+    No address provided
+@endif
+</p>
+</p>
+                <p><i class="fas fa-phone-alt"></i> {{ $agency->phone_number ?? 'No phone number' }}</p>
+                <p><i class="fas fa-envelope"></i> {{ $agency->email ?? 'No email' }}</p>
             </div>
         </div>
 
-        {{-- Agency Name --}}
-        <div class="agency-name">
-            {{ $agency->name }}
-        </div>
-
-        {{-- Agency Info --}}
-        <div class="agency-info">
-            <p><i class="fas fa-map-marker-alt info-icon"></i> {{ $agency->address }}</p>
-            <p><i class="fas fa-phone info-icon"></i> {{ $agency->phone_number }}</p>
-            <p><i class="fas fa-envelope info-icon"></i> {{ $agency->email }}</p>
-        </div>
-
-        {{-- About Us --}}
-        <div class="section">
-            <h5><i class="fas fa-info-circle"></i> About Us</h5>
+        <div class="about-section">
+            <h4>About Us</h4>
             <p>{{ $agency->description ?? 'No description provided.' }}</p>
         </div>
-
-        {{-- Gallery
-        <div class="section">
-            <h5><i class="fas fa-images"></i> Gallery</h5>
-            <div class="row gallery">
-                @foreach($gallery as $image)
-                    <div class="col-3 mb-2">
-                        <img src="{{ asset('storage/' . $image->path) }}" alt="Gallery Image">
-                    </div>
-                @endforeach
-            </div>
-        </div> --}}
-
-        {{-- Posts
-        <div class="section">
-            <h5><i class="fas fa-edit"></i> Posts</h5>
-            @foreach($posts as $post)
-                <div class="post-card">
-                    <div class="post-header">{{ $agency->name }}</div>
-                    @if($post->image)
-                        <img src="{{ asset('storage/' . $post->image) }}" class="post-image" alt="Post Image">
-                    @endif
-                    <div class="p-3">
-                        <p>{{ $post->content }}</p>
-                    </div>
-                    <div class="post-footer">
-                        <span><i class="fas fa-thumbs-up"></i> {{ $post->likes_count }} like</span>
-                        <span><i class="fas fa-comments"></i> See Comments</span>
-                    </div>
-                </div>
-            @endforeach
-        </div> --}}
     </div>
 </div>
-@endsection
+@stop
