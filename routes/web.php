@@ -12,6 +12,10 @@ use App\Http\Controllers\PortalAuthController;
 use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\EnrolledTraineeController;
 use App\Http\Controllers\Admin\AdminAgencyController;
+use App\Http\Controllers\Tesda\TesdaProfileController;
+use App\Http\Controllers\Tesda\TesdaResumeController;
+use App\Http\Controllers\Agency\AgencyProfileController;
+use App\Http\Controllers\Agency\JobPostController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -115,17 +119,44 @@ Route::prefix('tesda')->name('tesda.')->middleware(['auth'])->group(function () 
         ->name('edit');
     Route::get('/resume', [TesdaResumeController::class, 'index'])
         ->name('resume');
+
+    Route::get('/create-resume', [TesdaResumeController::class, 'create'])
+        ->name('resume.create');
+    Route::post('/create-resume', [TesdaResumeController::class, 'store'])
+        ->name('resume.store');
+    // Route::put('/resume/{id}', [TesdaResumeController::class, 'update'])
+    //     ->name('tesda.resume.update');
+
+
 });
 
+
 Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function () {
-    Route::get('/home', fn() => view('agency.home'))
-        ->name('home');
+    Route::get('/home', [JobPostController::class, 'index'])
+        ->name('job-posts.index');
+
+    Route::post('/job-posts', [JobPostController::class, 'store'])
+        ->name('job-posts.store');
 
     Route::get('/dashboard', fn() => view('agency.dashboard'))
         ->name('dashboard');
 
     Route::get('/profile', [AgencyProfileController::class, 'index'])
         ->name('profile');
+
     Route::get('/edit-info', [AgencyProfileController::class, 'edit'])
-        ->name('edit');
+        ->name('edit-info');
+    Route::put('/update-info', [AgencyProfileController::class, 'update'])
+        ->name('update-info');
+        
+    Route::get('/manage', [JobPostController::class, 'manage'])
+        ->name('job-posts.manage');
+    Route::get('/{id}', [JobPostController::class, 'edit'])
+        ->name('job-edits');
+    Route::put('/{id}', [JobPostController::class, 'update'])
+        ->name('job-posts.update');
+    Route::delete('/{id}', [JobPostController::class, 'destroy'])
+        ->name('job-posts.destroy');
+    Route::get('/manage-posts', [JobPostController::class, 'manage'])->name('manage-posts');
+
 });
