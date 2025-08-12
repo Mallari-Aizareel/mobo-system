@@ -151,8 +151,6 @@ Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function (
         
     Route::get('/manage', [JobPostController::class, 'manage'])
         ->name('job-posts.manage');
-    Route::get('/{id}', [JobPostController::class, 'edit'])
-        ->name('job-edits');
     Route::put('/{id}', [JobPostController::class, 'update'])
         ->name('job-posts.update');
     Route::delete('/{id}', [JobPostController::class, 'destroy'])
