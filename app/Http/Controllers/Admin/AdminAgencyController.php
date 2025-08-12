@@ -10,9 +10,10 @@ class AdminAgencyController extends Controller
 {
     public function index()
     {
-        $agencies = User::with('agencyRepresentatives')
-            ->where('role_id', 3)
-            ->get();
+        $agencies = User::with('agencyRepresentatives.address')
+    ->where('role_id', 3)
+    ->get();
+
 
         return view('admin.agencies', compact('agencies'));
     }

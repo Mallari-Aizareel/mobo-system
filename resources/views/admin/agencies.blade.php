@@ -28,15 +28,37 @@
                                 <img src="{{ $agency->profile_picture ? asset('storage/' . $agency->profile_picture) : asset('default-profile.png') }}" 
                                      alt="Profile Picture" width="50" height="50" class="rounded-circle">
                             </td>
+
                             <td>{{ $agency->firstname }}</td>
                             <td>{{ $agency->email }}</td>
                             <td>{{ $agency->phone_number }}</td>
-                            <td>
-                                {{ $agency->agencyRepresentative?->first_name ?? 'N/A' }}
-                                {{ $agency->agencyRepresentative?->last_name ?? '' }}
-                            </td>
-                            <td>{{ $agency->agencyRepresentative?->phone_number ?? 'N/A' }}</td>
-                            <td>{{ $agency->agencyRepresentative?->email ?? 'N/A' }}</td>
+                         
+                           <td>
+        @forelse ($agency->agencyRepresentatives as $rep)
+            {{ $rep->first_name }} {{ $rep->last_name }}<br>
+        @empty
+            N/A
+        @endforelse
+    </td>
+
+    <td>
+        @forelse ($agency->agencyRepresentatives as $rep)
+            {{ $rep->address?->street ?? 'No address' }}<br>
+            {{ $rep->address?->barangay ?? '' }}<br>
+            {{ $rep->address?->city ?? '' }}<br>
+        @empty
+            N/A
+        @endforelse
+    </td>
+
+    <td>
+        @forelse ($agency->agencyRepresentatives as $rep)
+            {{ $rep->phone_number }}<br>
+        @empty
+            N/A
+        @endforelse
+    </td>
+
                         </tr>
                     @endforeach
                 </tbody>

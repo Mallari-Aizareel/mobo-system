@@ -46,7 +46,7 @@
 <div class="bg-white p-4 rounded shadow">
     <!-- Header with background -->
     <div class="position-relative">
-        <img src="{{ $user->background_picture ? asset('storage/' . $user->background_picture) : asset('storage/background_picture/default.jpg') }}" 
+        <img src="{{ $user->background_picture ? asset('storage/' . $user->background_picture) : asset('storage/background_pictures/default.jpg') }}" 
              class="profile-bg">
         <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : 'https://ui-avatars.com/api/?name='.urlencode($user->firstname.' '.$user->lastname) }}" 
              class="profile-picture">
