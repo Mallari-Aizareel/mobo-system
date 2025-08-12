@@ -57,12 +57,12 @@ class AppServiceProvider extends ServiceProvider
         ],
         [
             'text' => 'Create Class',
-            'url'  => 'admin/settings',
+            'url'  => 'admin/classes/',
             'icon' => 'fas fa-plus-circle',
         ],
         [
             'text' => 'Classes',
-            'url'  => 'admin/dashboard',
+            'url'  => 'admin/classes/list',
             'icon' => 'fas fa-chalkboard-teacher',
         ],
                 [

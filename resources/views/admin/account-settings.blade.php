@@ -54,7 +54,6 @@
     transform: translateX(-50%);
     z-index: 3;
 
-    /* Add size constraints */
     max-width: 300px;
     width: 100%;
 }
@@ -67,8 +66,6 @@
  
 }
 
-
-
 .bg-camera-btn {
     background: rgba(0,0,0,0.6);
     color: white;
@@ -76,8 +73,6 @@
     border-radius: 20px;
     cursor: pointer;
 }
-
-
 </style>
 <div class="container">
     <form action="{{ route('admin.account.update') }}" method="POST" enctype="multipart/form-data">
@@ -101,9 +96,12 @@
 
 
                     <img src="{{ Auth::user()->profile_picture 
-                        ? asset('storage/' . Auth::user()->profile_picture) 
-                        : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->firstname.' '.Auth::user()->lastname) }}" 
-                    alt="Profile" class="profile-picture img-circle elevation-1">
+    ? asset('storage/' . Auth::user()->profile_picture) 
+    : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->firstname.' '.Auth::user()->lastname) }}" 
+alt="Profile" 
+class="profile-picture img-circle elevation-1"
+id="profile_picture_preview">
+
 <div class="change-picture-btn">
     <div class="input-group input-group-sm">
         <input type="file" name="profile_picture" accept="image/*" hidden id="profile_picture_input">
@@ -214,9 +212,12 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
                                     </div>
-                                    <input type="text" name="phone_number" class="form-control"
-                                           value="{{ old('phone_number', Auth::user()->phone_number) }}"
-                                           minlength="11" maxlength="11" pattern="\d{11}" placeholder="e.g. 09xxxxxxxxx">
+                                    <input type="text" name="phone_number" class="form-control" id="phone_number"
+       value="{{ old('phone_number', Auth::user()->phone_number) }}"
+       pattern="\d{11}" maxlength="11"
+       title="Phone number must be exactly 11 digits"
+       placeholder="e.g. 09xxxxxxxxx" required>
+
                                 </div>
                             </div>
 
@@ -313,8 +314,17 @@
 @section('js')
 <script>
 document.getElementById('profile_picture_input').addEventListener('change', function(event) {
-    const fileName = event.target.files[0]?.name || "Update profile photo";
-    document.getElementById('file_name_display').value = fileName;
+    const file = event.target.files[0];
+
+    document.getElementById('file_name_display').value = file?.name || "Update profile picture";
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profile_picture_preview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
 });
 
 document.getElementById('background_picture_input').addEventListener('change', function(event) {
@@ -327,6 +337,9 @@ document.getElementById('background_picture_input').addEventListener('change', f
         reader.readAsDataURL(file);
     }
 });
-</script>
 
+document.getElementById('phone_number').addEventListener('input', function (e) {
+    this.value = this.value.replace(/\D/g, '').slice(0, 11); 
+});
+</script>
 @stop

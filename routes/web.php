@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\TrainingCenterController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\ProfileController;
@@ -12,6 +12,7 @@ use App\Http\Controllers\PortalAuthController;
 use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\EnrolledTraineeController;
 use App\Http\Controllers\Admin\AdminAgencyController;
+use App\Http\Controllers\Admin\RoomController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -84,6 +85,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         ->name('agreements.index');
     Route::post('/agreements', [AgreementController::class, 'store'])
         ->name('agreements.store');
+
+   Route::get('/classes', [RoomController::class, 'index'])
+        ->name('rooms.index');
+    Route::post('/classes', [RoomController::class, 'store'])
+        ->name('rooms.store');
+    Route::get('/classes/list', [RoomController::class, 'classesList'])
+        ->name('classes.list');
+    Route::get('/rooms/{id}', [RoomController::class, 'show'])
+        ->name('rooms.show');
 });
 
 Route::prefix('tesda')->name('tesda.')->middleware(['auth'])->group(function () {

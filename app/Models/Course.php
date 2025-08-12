@@ -10,4 +10,9 @@ class Course extends Model
     use HasFactory;
 
     protected $fillable = ['name'];
+
+    public function enrolledTrainees()
+    {
+        return $this->hasMany(EnrolledTrainee::class);
+    }
 }

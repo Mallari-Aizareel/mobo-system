@@ -200,6 +200,8 @@
                                     <input type="text" name="phone_number" class="form-control"
                                            value="{{ old('phone_number', Auth::user()->phone_number) }}"
                                            minlength="11" maxlength="11" pattern="\d{11}" placeholder="e.g. 09xxxxxxxxx">
+
+                                           
                                 </div>
                             </div>
 
