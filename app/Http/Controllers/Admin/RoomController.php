@@ -66,6 +66,5 @@ class RoomController extends Controller
             ->get();
 
         return view('admin.room-info', compact('room', 'trainees'));
-    }
-    
+    } 
 }

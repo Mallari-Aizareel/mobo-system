@@ -12,6 +12,7 @@ use App\Http\Controllers\PortalAuthController;
 use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\EnrolledTraineeController;
 use App\Http\Controllers\Admin\AdminAgencyController;
+use App\Http\Controllers\Admin\RoomController;
 
 Route::get('/', function () {
     return view('auth.login');
