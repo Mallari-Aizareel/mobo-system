@@ -11,19 +11,16 @@ use Illuminate\Support\Facades\Storage;
 
 class AgencyProfileController extends Controller
 {
-public function index()
-{
-    $agency = Auth::user()->load('address');
-    return view('agency.profile', compact('agency'));
-}
+    public function index()
+    {
+        $agency = Auth::user()->load('address');
+        return view('agency.profile', compact('agency'));
+    }
 
-
-    
     public function edit()
     {
         $user = Auth::user();
 
-        // Load agency representatives linked to the user
         $representatives = $user->agencyRepresentatives()->get();
 
         return view('agency.edit-info', compact('user', 'representatives'));
@@ -39,22 +36,19 @@ public function index()
             'email' => 'required|email|max:255',
             'address' => 'nullable|string',
 
-            'profile_picture' => 'nullable|image|max:2048',       // agency logo
-            'background_picture' => 'nullable|image|max:4096',    // agency cover photo
+            'profile_picture' => 'nullable|image|max:2048',      
+            'background_picture' => 'nullable|image|max:4096',   
 
-            // Representative fields for first rep
             'representative_first_name' => 'required|string|max:255',
             'representative_last_name' => 'required|string|max:255',
             'representative_phone_number' => 'required|string|max:20',
             'representative_email' => 'required|email|max:255',
         ]);
 
-        // Update user's basic info (used as agency info here)
         $user->update([
             'firstname' => $validated['firstname'],
             'phone_number' => $validated['phone_number'],
             'email' => $validated['email'],
-            // You can handle address relationship separately if needed
         ]);
 
         $user->address()->updateOrCreate([], [
@@ -65,7 +59,6 @@ public function index()
             'country'  => $request->country,
         ]);
 
-        // Upload and update profile_picture (agency logo)
         if ($request->hasFile('profile_picture')) {
             if ($user->profile_picture) {
                 Storage::disk('public')->delete($user->profile_picture);
@@ -73,7 +66,6 @@ public function index()
             $user->profile_picture = $request->file('profile_picture')->store('profile_pictures', 'public');
         }
 
-        // Upload and update background_picture (agency cover photo)
         if ($request->hasFile('background_picture')) {
             if ($user->background_picture) {
                 Storage::delete('public/' . $user->background_picture);
@@ -83,7 +75,6 @@ public function index()
 
         $user->save();
 
-        // Update or create the first representative linked to agency (user)
         AgencyRepresentative::updateOrCreate(
             ['agency_id' => $user->id],
             [

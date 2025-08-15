@@ -22,7 +22,10 @@
                 @csrf
 
                 <div class="form-group">
-                    <label for="room_option"><strong>Room</strong></label>
+                    <label for="room_option" class="d-flex justify-content-between align-items-center">
+                        <strong>Room</strong>
+                        <i class="fas fa-info-circle text-info" data-toggle="tooltip" data-placement="top" title="A class/room can have up to 30 trainees only." style="cursor: pointer;"></i>
+                    </label>
                     <select name="room_option" id="room_option" class="form-control" onchange="toggleRoomInput()">
                         <option value="new">Create New Room</option>
                         @forelse($rooms as $room)

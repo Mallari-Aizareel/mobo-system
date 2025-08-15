@@ -15,10 +15,9 @@ class JobPostController extends Controller
         $search = $request->input('search');
 
         $jobPosts = JobPost::with('jobType', 'agency')
-            ->where('agency_id', Auth::id())
             ->when($search, function ($query, $search) {
                 $query->where('job_position', 'like', "%{$search}%")
-                      ->orWhere('job_description', 'like', "%{$search}%");
+                    ->orWhere('job_description', 'like', "%{$search}%");
             })
             ->latest()
             ->get();
@@ -36,14 +35,13 @@ class JobPostController extends Controller
             'job_qualifications' => 'nullable|string',
             'job_location' => 'required|string',
             'job_salary' => 'nullable|numeric',
-            'job_type' => 'required|string|in:full_time,part_time,hybrid,remote,on_site,urgent,open_for_fresh_graduates',
+            'job_type' => 'required|array',
+            'job_type.*' => 'in:full_time,part_time,hybrid,remote,on_site,urgent,open_for_fresh_graduates',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // Map job_title input to job_position column
         $jobPosition = $request->input('job_title');
 
-        // Prepare JobType flags
         $jobTypeFlags = [
             'full_time' => false,
             'part_time' => false,
@@ -54,22 +52,20 @@ class JobPostController extends Controller
             'open_for_fresh_graduates' => false,
         ];
 
-        // Set selected job type flag to true
-        $selectedType = $request->input('job_type');
-        if (array_key_exists($selectedType, $jobTypeFlags)) {
-            $jobTypeFlags[$selectedType] = true;
+        $selectedTypes = $request->input('job_type', []);
+        foreach ($selectedTypes as $type) {
+            if (array_key_exists($type, $jobTypeFlags)) {
+                $jobTypeFlags[$type] = true;
+            }
         }
 
-        // Create new JobType record
         $jobType = JobType::create($jobTypeFlags);
 
-        // Handle image upload
         $imagePath = null;
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('job_images', 'public');
         }
 
-        // Create job post
         JobPost::create([
             'agency_id' => Auth::id(),
             'job_position' => $jobPosition,
@@ -86,91 +82,84 @@ class JobPostController extends Controller
 
 
     public function manage()
-{
-    $jobPosts = JobPost::with('jobType', 'agency')
-        ->where('agency_id', Auth::id())
-        ->latest()
-        ->paginate(10);  // paginate for better UX if many posts
+    {
+        $jobPosts = JobPost::with('jobType', 'agency')
+            ->where('agency_id', Auth::id())
+            ->latest()
+            ->paginate(10); 
 
-    return view('agency.manage-posts', compact('jobPosts'));
-}
-
-// Show Edit Form
-public function edit($id)
-{
-    $jobPost = JobPost::with('jobType')->where('agency_id', Auth::id())->findOrFail($id);
-
-    return view('agency.job-edits', compact('jobPost'));
-}
-
-// Update Post
-public function update(Request $request, $id)
-{
-    $jobPost = JobPost::where('agency_id', Auth::id())->findOrFail($id);
-
-    $request->validate([
-        'job_title' => 'required|string|max:255',
-        'job_description' => 'required|string',
-        'job_qualifications' => 'nullable|string',
-        'job_location' => 'required|string',
-        'job_salary' => 'nullable|numeric',
-        'job_type' => 'required|string|in:full_time,part_time,hybrid,remote,on_site,urgent,open_for_fresh_graduates',
-        'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-    ]);
-
-    // Update JobType flags
-    $jobTypeFlags = [
-        'full_time' => false,
-        'part_time' => false,
-        'hybrid' => false,
-        'remote' => false,
-        'on_site' => false,
-        'urgent' => false,
-        'open_for_fresh_graduates' => false,
-    ];
-    $selectedType = $request->input('job_type');
-    if (array_key_exists($selectedType, $jobTypeFlags)) {
-        $jobTypeFlags[$selectedType] = true;
+        return view('agency.manage-posts', compact('jobPosts'));
     }
 
-    // Update job type record
-    $jobPost->jobType()->update($jobTypeFlags);
+    public function edit($id)
+    {
+        $jobPost = JobPost::with('jobType')->where('agency_id', Auth::id())->findOrFail($id);
 
-    // Handle image upload (replace old image)
-    if ($request->hasFile('image')) {
+        return view('agency.job-edits', compact('jobPost'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $jobPost = JobPost::where('agency_id', Auth::id())->findOrFail($id);
+
+        $request->validate([
+            'job_title' => 'required|string|max:255',
+            'job_description' => 'required|string',
+            'job_qualifications' => 'nullable|string',
+            'job_location' => 'required|string',
+            'job_salary' => 'nullable|numeric',
+            'job_type' => 'required|array',
+            'job_type.*' => 'in:full_time,part_time,hybrid,remote,on_site,urgent,open_for_fresh_graduates',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $jobTypeFlags = [
+            'full_time' => false,
+            'part_time' => false,
+            'hybrid' => false,
+            'remote' => false,
+            'on_site' => false,
+            'urgent' => false,
+            'open_for_fresh_graduates' => false,
+        ];
+        $selectedTypes = $request->input('job_type', []);
+        foreach ($selectedTypes as $type) {
+            if (array_key_exists($type, $jobTypeFlags)) {
+                $jobTypeFlags[$type] = true;
+            }
+        }
+
+        $jobPost->jobType()->update($jobTypeFlags);
+        if ($request->hasFile('image')) {
+            if ($jobPost->job_image) {
+                \Storage::disk('public')->delete($jobPost->job_image);
+            }
+            $imagePath = $request->file('image')->store('job_images', 'public');
+            $jobPost->job_image = $imagePath;
+        }
+
+        $jobPost->job_position = $request->job_title;
+        $jobPost->job_description = $request->job_description;
+        $jobPost->job_qualifications = $request->job_qualifications;
+        $jobPost->job_location = $request->job_location;
+        $jobPost->job_salary = $request->job_salary;
+        $jobPost->save();
+
+        return redirect()->route('agency.job-posts.manage')->with('success', 'Job post updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $jobPost = JobPost::where('agency_id', Auth::id())->findOrFail($id);
+
         if ($jobPost->job_image) {
             \Storage::disk('public')->delete($jobPost->job_image);
         }
-        $imagePath = $request->file('image')->store('job_images', 'public');
-        $jobPost->job_image = $imagePath;
+
+        $jobPost->jobType()->delete();
+
+        $jobPost->delete();
+
+        return redirect()->route('agency.job-posts.manage')->with('success', 'Job post deleted successfully.');
     }
-
-    $jobPost->job_position = $request->job_title;
-    $jobPost->job_description = $request->job_description;
-    $jobPost->job_qualifications = $request->job_qualifications;
-    $jobPost->job_location = $request->job_location;
-    $jobPost->job_salary = $request->job_salary;
-    $jobPost->save();
-
-    return redirect()->route('agency.job-posts.manage')->with('success', 'Job post updated successfully.');
-}
-
-// Delete Post
-public function destroy($id)
-{
-    $jobPost = JobPost::where('agency_id', Auth::id())->findOrFail($id);
-
-    // Delete image from storage
-    if ($jobPost->job_image) {
-        \Storage::disk('public')->delete($jobPost->job_image);
-    }
-
-    // Delete associated jobType record
-    $jobPost->jobType()->delete();
-
-    // Delete job post
-    $jobPost->delete();
-
-    return redirect()->route('agency.job-posts.manage')->with('success', 'Job post deleted successfully.');
-}
 }

@@ -44,7 +44,6 @@
 </style>
 
 <div class="bg-white p-4 rounded shadow">
-    <!-- Header with background -->
     <div class="position-relative">
         <img src="{{ $user->background_picture ? asset('storage/' . $user->background_picture) : asset('storage/background_pictures/default.jpg') }}" 
              class="profile-bg">
@@ -57,20 +56,27 @@
     </div>
     <div class="text-center text-muted mb-4">TESDA Trainee</div>
 
-    <!-- Contact Info -->
     <div class="section">
-        <p><i class="fas fa-map-marker-alt"></i> {{ $user->address ? $user->address->full_address : 'No address available' }}</p>
+        <p><i class="fas fa-map-marker-alt"></i> 
+            @if($user->address)
+                {{ $user->address->street }}, 
+                {{ $user->address->barangay }}, 
+                {{ $user->address->city }}, 
+                {{ $user->address->province }}, 
+                {{ $user->address->country }}
+            @else
+                No address provided
+            @endif
+        </p>
         <p><i class="fas fa-phone-alt"></i> {{ $user->phone_number }}</p>
         <p><i class="fas fa-envelope"></i> {{ $user->email }}</p>
     </div>
 
-    <!-- About -->
     <div class="section">
         <div class="section-title"><i class="fas fa-info-circle"></i> About</div>
         <p>{{ $user->description ?? 'No background provided.' }}</p>
     </div>
 
-    <!-- Certificates -->
     <div class="section">
         <div class="section-title"><i class="fas fa-certificate"></i> Certificates</div>
         {{-- <ul>
@@ -82,14 +88,13 @@
         </ul> --}}
     </div>
 
-<!-- Skills -->
-<div class="section">
-    <div class="section-title"><i class="fas fa-tools"></i> Skills</div>
-    <div style="max-width: 500px; height: 250px; margin-left: 0;">
-    {{-- <div style="max-width: 500px; height: 250px; margin: auto;"> --}}
-        <canvas id="skillsChart"></canvas>
+    <div class="section">
+        <div class="section-title"><i class="fas fa-tools"></i> Skills</div>
+        <div style="max-width: 500px; height: 250px; margin-left: 0;">
+        {{-- <div style="max-width: 500px; height: 250px; margin: auto;"> --}}
+            <canvas id="skillsChart"></canvas>
+        </div>
     </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>

@@ -80,6 +80,11 @@ class AppServiceProvider extends ServiceProvider
             'url'  => 'admin/drafted-trainees',
             'icon' => 'fas fa-file-alt',
         ],
+        [
+            'text' => 'Manage FAQs',
+            'url'  => 'admin/faqs',
+            'icon' => 'fas fa-school',
+        ],
                 ];
             } elseif ($user->role_id == 2) { // TESDA
                $menu = [
@@ -95,6 +100,7 @@ class AppServiceProvider extends ServiceProvider
                     ['text' => 'Home', 'url' => 'agency/home', 'icon' => 'fas fa-home'],
                     ['text' => 'Dashboard', 'url' => 'agency/dashboard', 'icon' => 'fas fa-tachometer-alt'],
                     ['text' => 'Manage Post', 'url' => 'agency/manage', 'icon' => 'fas fa-file-alt'],
+                    ['text' => 'FAQs', 'url' => 'agency/faqs', 'icon' => 'fas fa-file-alt'],
 
                 ];
             }

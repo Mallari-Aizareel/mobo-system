@@ -13813,12 +13813,14 @@ body:not(.layout-fixed) .main-sidebar .sidebar {
 }
 
 .layout-fixed .main-sidebar-custom .sidebar {
-  height: calc(100% - ((3.5rem + 4rem) + 1px));
+    height: calc(100% - 150px); /* adjust 150px based on your footer height */
+    overflow-y: auto;
 }
 
 .layout-fixed .main-sidebar-custom .sidebar-custom {
-  height: 4rem;
-  padding: 0.85rem 0.5rem;
+  height: auto; /* allow footer to expand */
+    padding: 10px; /* or your preferred spacing */
+    bottom: 0;     /* still stick to bottom */
 }
 
 .layout-fixed .main-sidebar-custom-lg .sidebar {

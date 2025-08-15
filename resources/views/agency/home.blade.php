@@ -26,170 +26,213 @@
     </div>
 
     {{-- Modal for Posting Job --}}
+    {{-- Modal for Creating Job Post --}}
     <div class="modal fade" id="createPostModal" tabindex="-1" role="dialog" aria-labelledby="createPostModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Post a New Job</h5>
+                    <h5 class="modal-title" id="createPostModalLabel">Post a New Job</h5>
                     <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <form action="{{ route('agency.job-posts.store') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Job Title</label>
-                            <input type="text" name="job_title" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Job Description</label>
-                            <textarea name="job_description" class="form-control" rows="4" required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Qualifications</label>
-                            <textarea name="job_qualifications" class="form-control" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Job Location</label>
-                            <input type="text" name="job_location" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Salary</label>
-                            <input type="number" name="job_salary" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Job Type</label>
-                            <select name="job_type" class="form-control" required>
-                                <option value="" disabled selected>Select Job Type</option>
-                                <option value="full_time">Full Time</option>
-                                <option value="part_time">Part Time</option>
-                                <option value="hybrid">Hybrid</option>
-                                <option value="remote">Remote</option>
-                                <option value="on_site">On Site</option>
-                                <option value="urgent">Urgent</option>
-                                <option value="open_for_fresh_graduates">Open for Fresh Graduates</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Upload Image (optional)</label>
-                            <input type="file" name="image" class="form-control" accept="image/*" onchange="previewImage(event)">
-                            <div class="mt-2">
-                                <img id="imagePreview" src="#" alt="Image Preview" style="display: none; max-width: 250px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                <form action="{{ route('agency.job-posts.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <!-- Job Title -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Job Title</label>
+                                <input type="text" name="job_title" class="form-control" required>
                             </div>
-                        </div>
-                        <button class="btn btn-success fw-semibold">Post Job</button>
-                    </form>
-                </div>
+
+                            <!-- Job Location -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Job Location</label>
+                                <input type="text" name="job_location" class="form-control" required>
+                            </div>
+
+                            <!-- Salary -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Salary</label>
+                                <input type="number" name="job_salary" class="form-control">
+                            </div>
+
+                            <!-- Image Upload -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Upload Image (optional)</label>
+                                <input type="file" name="image" class="form-control" accept="image/*" onchange="previewImage(event)">
+                                <div class="mt-2">
+                                    <img id="imagePreview" src="#" alt="Image Preview" 
+                                        style="display: none; max-width: 250px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                </div>
+                            </div>
+
+                            <!-- Job Description (full-width) -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Job Description</label>
+                                <textarea name="job_description" class="form-control" rows="4" required></textarea>
+                            </div>
+
+                            <!-- Qualifications (full-width) -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Qualifications</label>
+                                <textarea name="job_qualifications" class="form-control" rows="3"></textarea>
+                            </div>
+
+                            <!-- Job Type (checkboxes, full-width) -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Job Type</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @php
+                                        $types = [
+                                            'full_time' => 'Full Time',
+                                            'part_time' => 'Part Time',
+                                            'hybrid' => 'Hybrid',
+                                            'remote' => 'Remote',
+                                            'on_site' => 'On Site',
+                                            'urgent' => 'Urgent',
+                                            'open_for_fresh_graduates' => 'Open for Fresh Graduates',
+                                        ];
+                                    @endphp
+                                    @foreach($types as $key => $label)
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="job_type[]" value="{{ $key }}" id="jobTypeCreate{{ $key }}">
+                                            <label class="form-check-label" for="jobTypeCreate{{ $key }}">
+                                                {{ $label }}
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                        </div> <!-- row -->
+                    </div> <!-- modal-body -->
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success fw-semibold">Post Job</button>
+                        <button type="button" class="btn btn-secondary fw-semibold" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    {{-- Job Post Cards --}}
-    @foreach($jobPosts as $job)
-        <div class="card mb-5 shadow rounded-lg border-0" style="box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-3">
-                    {{-- Agency Profile --}}
-                    <img src="{{ $job->agency->profile_picture 
-                        ? asset('storage/' . $job->agency->profile_picture) 
-                        : 'https://ui-avatars.com/api/?name=' . urlencode($job->agency->name ?? 'Agency') }}" 
-                        alt="Agency Profile" 
-                        class="rounded-circle me-3 shadow" 
-                        style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #0d6efd;">
-                    
-                    <div>
-                        <a href="{{ route('agency.profile', $job->agency_id) }}" class="h4 mb-0 text-primary fw-bold" style="text-decoration: none;">
-                            {{ $job->agency->name ?? 'Unknown Agency' }}
-                        </a>
-                        <div class="text-muted small fst-italic">{{ $job->created_at->diffForHumans() }}</div>
-                    </div>
-                </div>
 
-                {{-- Hiring text --}}
-                <p class="text-muted fst-italic mb-1">We are now hiring:</p>
+{{-- Job Post Cards --}}
+@foreach($jobPosts as $job)
+<div class="card mb-4 shadow-sm rounded-lg border-0" style="box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <div class="card-body p-4">
 
-                {{-- Job Details --}}
-                <div class="mb-4">
-                    <h3 class="mb-3 fw-semibold text-dark">{{ $job->job_position }}</h3>
-
-                    <p class="mb-2"><span class="fw-bold">Description:</span> <br>{!! nl2br(e($job->job_description)) !!}</p>
-
-                    <p class="mb-2"><span class="fw-bold">Qualifications:</span> <br>{{ $job->job_qualifications ?? 'Not specified' }}</p>
-
-                    <p class="mb-2"><span class="fw-bold">Location:</span> {{ $job->job_location ?? 'Not specified' }}</p>
-
-                    <p class="mb-2"><span class="fw-bold">Salary:</span> 
-                        {{ $job->job_salary ? '₱' . number_format($job->job_salary, 2) : 'Not specified' }}
-                    </p>
-
-                    <p class="mb-0"><span class="fw-bold">Job Type:</span> 
-                        @php
-                            $typeLabels = [
-                                'full_time' => 'Full Time',
-                                'part_time' => 'Part Time',
-                                'hybrid' => 'Hybrid',
-                                'remote' => 'Remote',
-                                'on_site' => 'On Site',
-                                'urgent' => 'Urgent',
-                                'open_for_fresh_graduates' => 'Open for Fresh Graduates',
-                            ];
-                        @endphp
-                        @if($job->jobType)
-                            @php
-                                $types = [];
-                                foreach($typeLabels as $key => $label) {
-                                    if ($job->jobType->$key) {
-                                        $types[] = $label;
-                                    }
-                                }
-                            @endphp
-                            {{ implode(', ', $types) ?: 'Not specified' }}
-                        @else
-                            Not specified
-                        @endif
-                    </p>
-                </div>
-
-                {{-- Uploaded Image --}}
-                @if($job->job_image)
-                    <div class="text-center mb-4">
-                        <img src="{{ asset('storage/' . $job->job_image) }}" alt="Job Image" 
-                            class="img-fluid rounded shadow" 
-                            style="max-height: 320px; object-fit: contain; border-radius: 12px;">
-                    </div>
-                @endif
-
-                {{-- Action Buttons --}}
-                <div class="d-flex gap-3">
-                    <button class="btn btn-outline-primary fw-semibold" style="flex: 1;">
-                        <i class="fas fa-thumbs-up me-1"></i> Like
-                    </button>
-                    <button class="btn btn-outline-secondary fw-semibold" style="flex: 1;" data-toggle="collapse" data-target="#comments-{{ $job->id }}">
-                        <i class="fas fa-comment me-1"></i> Comments
-                    </button>
-                </div>
-
-                {{-- Comment Section --}}
-                <div class="collapse mt-4" id="comments-{{ $job->id }}">
-                    <div class="p-3 border rounded bg-light">
-                        <strong>Recommended TESDA Graduates:</strong>
-                        <ul class="list-group mt-2">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <a href="#" class="fw-bold">Juan Dela Cruz</a>
-                                    <br><a href="#">View Resume</a>
-                                </div>
-                                <button class="btn btn-primary btn-sm">
-                                    <i class="fas fa-envelope"></i> Send Message
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
+        {{-- Agency Info + Options --}}
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center">
+                <img src="{{ $job->agency->profile_picture 
+                    ? asset('storage/' . $job->agency->profile_picture) 
+                    : 'https://ui-avatars.com/api/?name=' . urlencode($job->agency->name ?? 'Agency') }}" 
+                    alt="Agency" class="rounded-circle me-3 shadow" style="width:50px; height:50px; object-fit:cover; border:2px solid #0d6efd;">
+                <div>
+                    <a href="{{ route('agency.profile', $job->agency_id) }}" class="fw-bold text-primary mb-0 d-block" style="text-decoration:none;">
+                        {{ $job->agency->name ?? 'Unknown Agency' }}
+                    </a>
+                    <small class="text-muted fst-italic">{{ $job->created_at->diffForHumans() }}</small>
                 </div>
             </div>
+            {{-- Ellipsis for options --}}
+            {{-- Ellipsis for options --}}
+<div class="dropdown">
+    <button class="btn btn-link text-muted p-0" type="button" id="optionsMenu{{ $job->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-ellipsis-h"></i>
+    </button>
+    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="optionsMenu{{ $job->id }}">
+        @if(Auth::id() === $job->agency_id)
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editJobModal{{ $job->id }}">Edit Post</a>
+            <form action="{{ route('agency.job-posts.destroy', $job->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this post?');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="dropdown-item text-danger">Delete Post</button>
+            </form>
+        @else
+            <a class="dropdown-item" href="#">Mute this Agency</a>
+            <a class="dropdown-item" href="#">Ignore notifications from this Agency</a>
+        @endif
+    </div>
+</div>
+
         </div>
-    @endforeach
+
+        {{-- Job Info --}}
+        <h5 class="fw-bold mb-2">{{ $job->job_position }}</h5>
+         <span class="badge bg-secondary me-2"><i class="fas fa-map-marker-alt me-1"></i> {{ $job->job_location ?? 'Not specified' }}</span>
+        <div class="mb-2">
+           
+            @if($job->jobType)
+                @php
+                    $typeLabels = [
+                        'full_time' => 'Full Time',
+                        'part_time' => 'Part Time',
+                        'hybrid' => 'Hybrid',
+                        'remote' => 'Remote',
+                        'on_site' => 'On Site',
+                        'urgent' => 'Urgent',
+                        'open_for_fresh_graduates' => 'Open for Fresh Graduates',
+                    ];
+                    $types = [];
+                    foreach($typeLabels as $key => $label){
+                        if($job->jobType->$key) $types[] = $label;
+                    }
+                @endphp
+                @foreach($types as $type)
+                    <span class="badge bg-info text-dark me-1">{{ $type }}</span>
+                @endforeach
+            @endif
+        </div>
+
+        {{-- Description & Qualifications --}}
+        <p class="mb-2"><span class="fw-bold">Description:</span> {!! nl2br(e($job->job_description)) !!}</p>
+        <p class="mb-2"><span class="fw-bold">Qualifications:</span> {{ $job->job_qualifications ?? 'Not specified' }}</p>
+        @if($job->job_salary)
+            <p class="mb-2"><span class="fw-bold">Salary:</span> ₱{{ number_format($job->job_salary,2) }}</p>
+        @endif
+
+        {{-- Image --}}
+        @if($job->job_image)
+            <div class="mb-3 text-center">
+                <img src="{{ asset('storage/' . $job->job_image) }}" class="img-fluid rounded shadow-sm" style="max-height:300px; object-fit:cover;">
+            </div>
+        @endif
+
+        {{-- Like / Comments Row --}}
+        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+            <div class="d-flex align-items-center text-primary fw-semibold" style="cursor:pointer;">
+                <i class="fas fa-thumbs-up me-2"></i> Like
+            </div>
+            <div class="text-secondary fw-semibold" style="cursor:pointer;" data-toggle="collapse" data-target="#comments-{{ $job->id }}">
+                See Comments
+            </div>
+        </div>
+
+        {{-- Comment Section --}}
+        <div class="collapse mt-3" id="comments-{{ $job->id }}">
+            <div class="p-3 border rounded bg-light">
+                <strong>Recommended TESDA Graduates:</strong>
+                <ul class="list-group mt-2">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="#" class="fw-bold">Juan Dela Cruz</a>
+                            <br><a href="#">View Resume</a>
+                        </div>
+                        <button class="btn btn-primary btn-sm"><i class="fas fa-envelope"></i> Send Message</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+@endforeach
+
+
 
 </div>
 

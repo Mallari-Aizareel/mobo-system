@@ -42,13 +42,20 @@ class RoomController extends Controller
             $room = Room::findOrFail($request->room_option);
         }
 
+        $currentTraineesCount = EnrolledTrainee::where('room_id', $room->id)->count();
+
+        if ($currentTraineesCount >= 30) {
+            return back()->withErrors(['trainee_id' => 'This room already has 30 trainees, which is the maximum allowed.']);
+        }
+
         EnrolledTrainee::updateOrCreate(
-            ['user_id' => $request->trainee_id],  
-            ['room_id' => $room->id]             
+            ['user_id' => $request->trainee_id],
+            ['room_id' => $room->id]
         );
 
         return back()->with('success', 'Room and trainee saved successfully!');
     }
+
 
     public function classesList()
     {

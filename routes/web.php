@@ -17,6 +17,9 @@ use App\Http\Controllers\Agency\JobPostController;
 use App\Http\Controllers\Agency\AgencyProfileController;
 use App\Http\Controllers\Tesda\TesdaProfileController;
 use App\Http\Controllers\Tesda\TesdaResumeController;
+use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Tesda\TesdaDashboardController;
+use App\Http\Controllers\Agency\AgencyDashboardController;
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -97,14 +100,28 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         ->name('classes.list');
     Route::get('/rooms/{id}', [RoomController::class, 'show'])
         ->name('rooms.show');
+
+    Route::get('faqs', [FaqController::class, 'index'])
+        ->name('faqs.index');
+    Route::post('faqs', [FaqController::class, 'store'])
+        ->name('faqs.store');
+    Route::put('faqs/{faq}', [FaqController::class, 'update'])
+        ->name('faqs.update');
+    Route::delete('faqs/{faq}', [FaqController::class, 'destroy'])
+        ->name('faqs.destroy');
+
 });
 
 Route::prefix('tesda')->name('tesda.')->middleware(['auth'])->group(function () {
     Route::get('/home', fn() => view('tesda.home'))
         ->name('home');
-    Route::get('/dashboard', fn() => view('tesda.dashboard'))
+    Route::get('/dashboard', [TesdaDashboardController::class, 'index'])
         ->name('dashboard');
-
+    Route::get('/class/{id}', [TesdaDashboardController::class, 'show'])
+        ->name('class.show');
+    Route::get('/faqs', [TesdaDashboardController::class, 'faqs'])
+        ->name('tesda.faqs');
+    
     Route::get('/account-settings', [TesdaAccountSettingsController::class, 'index'])
         ->name('account.settings');
     Route::put('/account-settings', [TesdaAccountSettingsController::class, 'update'])
@@ -133,10 +150,6 @@ Route::prefix('tesda')->name('tesda.')->middleware(['auth'])->group(function () 
         ->name('resume.create');
     Route::post('/create-resume', [TesdaResumeController::class, 'store'])
         ->name('resume.store');
-    // Route::put('/resume/{id}', [TesdaResumeController::class, 'update'])
-    //     ->name('tesda.resume.update');
-
-
 });
 
 
@@ -147,8 +160,10 @@ Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function (
     Route::post('/job-posts', [JobPostController::class, 'store'])
         ->name('job-posts.store');
 
-    Route::get('/dashboard', fn() => view('agency.dashboard'))
+    Route::get('/dashboard', [AgencyDashboardController::class, 'index'])
         ->name('dashboard');
+    Route::get('faqs', [AgencyDashboardController::class, 'faqs'])
+        ->name('faqs');
 
     Route::get('/profile', [AgencyProfileController::class, 'index'])
         ->name('profile');

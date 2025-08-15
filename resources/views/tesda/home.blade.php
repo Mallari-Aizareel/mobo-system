@@ -10,4 +10,3 @@
 @section('content')
     <p>Feed</p>
 @endsection
-
