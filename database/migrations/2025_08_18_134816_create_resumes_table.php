@@ -8,6 +8,11 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('resumes', function (Blueprint $table) {
             $table->id();
+
+            // Link to user (one resume per user)
+            $table->unsignedBigInteger('user_id')->unique();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
             // Personal Info
             $table->string('first_name');
             $table->string('last_name');
@@ -41,6 +46,9 @@ return new class extends Migration {
             // Certifications
             $table->string('certification_name')->nullable();
             $table->year('certification_year')->nullable();
+
+            // Optional PDF snapshot
+            $table->string('pdf_path')->nullable();
 
             $table->timestamps();
         });

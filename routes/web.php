@@ -20,6 +20,12 @@ use App\Http\Controllers\Tesda\TesdaResumeController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Tesda\TesdaDashboardController;
 use App\Http\Controllers\Agency\AgencyDashboardController;
+use App\Http\Controllers\Agency\JobInteractionController;  
+
+use App\Http\Controllers\Api\MatchingController;
+
+
+
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -150,6 +156,10 @@ Route::prefix('tesda')->name('tesda.')->middleware(['auth'])->group(function () 
         ->name('resume.create');
     Route::post('/create-resume', [TesdaResumeController::class, 'store'])
         ->name('resume.store');
+
+    // Auto-apply route
+    Route::post('/auto/{id}', [JobInteractionController::class, 'apply'])
+        ->name('apply');
 });
 
 
@@ -180,5 +190,24 @@ Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function (
     Route::delete('/{id}', [JobPostController::class, 'destroy'])
         ->name('job-posts.destroy');
     Route::get('/manage-posts', [JobPostController::class, 'manage'])->name('manage-posts');
+
+    Route::post('/like/{id}', [JobInteractionController::class, 'like'])
+        ->name('like');
+    Route::post('/comment{id}', [JobInteractionController::class, 'comment'])
+        ->name('comment');
+    Route::delete('/comments/{id}', [JobPostController::class, 'deleteComment'])
+    ->name('destroy');
+
+});
+
+
+
+
+    Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/match/job-post/{id}/candidates', [MatchingController::class, 'jobPostCandidates']);
+    Route::post('/match/job-post/{id}/recommend', [MatchingController::class, 'recommendForJob']);
+
+    Route::get('/match/resume/{id}/jobs', [MatchingController::class, 'resumeMatches']);
+    Route::post('/match/resume/{id}/recommend', [MatchingController::class, 'recommendForResume']);
 
 });
