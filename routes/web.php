@@ -191,5 +191,12 @@ Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function (
     
     Route::get('/profile/{id}', [AgencyProfileController::class, 'show'])
         ->name('show');
+
+    Route::post('/like/{id}', [JobInteractionController::class, 'like'])
+        ->name('like');
+    Route::post('/comment{id}', [JobInteractionController::class, 'comment'])
+        ->name('comment');
+    Route::delete('/comments/{id}', [JobPostController::class, 'deleteComment'])
+    ->name('destroy');
     
 });
