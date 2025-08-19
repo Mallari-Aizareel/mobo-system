@@ -87,32 +87,41 @@
                     </div>
                 @endif
 
-                {{-- Like / Comments Row --}}
-                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
-                    <div class="d-flex align-items-center text-primary fw-semibold" style="cursor:pointer;">
-                        <i class="fas fa-thumbs-up me-2"></i> Like
-                    </div>
-                    <div class="text-secondary fw-semibold" style="cursor:pointer;" data-toggle="collapse" data-target="#comments-{{ $job->id }}">
-                        See Comments
-                    </div>
-                </div>
+{{-- Like / Comments Row --}}
+<div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+    <div class="d-flex align-items-center text-primary fw-semibold" style="cursor:pointer;">
+        <i class="fas fa-thumbs-up me-2"></i> 
+        {{ $job->likes->count() }} Likes
+    </div>
+    <div class="text-secondary fw-semibold" style="cursor:pointer;" data-toggle="collapse" data-target="#comments-{{ $job->id }}">
+        {{ $job->comments->count() }} Comments
+    </div>
+</div>
 
-                {{-- Comment Section --}}
-                <div class="collapse mt-3" id="comments-{{ $job->id }}">
-                    <div class="p-3 border rounded bg-light">
-                        <strong>Recommended TESDA Graduates:</strong>
-                        <ul class="list-group mt-2">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <a href="#" class="fw-bold">Juan Dela Cruz</a>
-                                    <br><a href="#">View Resume</a>
-                                </div>
-                                <button class="btn btn-primary btn-sm"><i class="fas fa-envelope"></i> Send Message</button>
-                            </li>
-                        </ul>
+{{-- Comment Section --}}
+<div class="collapse mt-3" id="comments-{{ $job->id }}">
+    <div class="p-3 border rounded bg-light">
+        <strong>Comments:</strong>
+        <ul class="list-group mt-2">
+            @forelse($job->comments as $comment)
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ $comment->user->name ?? 'Anonymous' }}</strong><br>
+                        {{ $comment->content }}
+                        <br><small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
                     </div>
-                </div>
-
+                    <form action="{{ route('agency.destroy', $comment->id) }}" method="POST" onsubmit="return confirm('Delete this comment?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                    </form>
+                </li>
+            @empty
+                <li class="list-group-item text-muted">No comments yet.</li>
+            @endforelse
+        </ul>
+    </div>
+</div>
             </div>
         </div>
 

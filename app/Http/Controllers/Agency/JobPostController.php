@@ -162,4 +162,17 @@ class JobPostController extends Controller
 
         return redirect()->route('agency.job-posts.manage')->with('success', 'Job post deleted successfully.');
     }
+    public function deleteComment($id)
+{
+    $comment = \App\Models\Comment::findOrFail($id);
+
+    // Only allow the agency who owns the post to delete
+    if ($comment->jobPost->agency_id !== Auth::id()) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    $comment->delete();
+
+    return back()->with('success', 'Comment deleted successfully.');
+}
 }

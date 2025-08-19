@@ -195,7 +195,37 @@
             @endif
         </div>
 
-        {{-- Like / Comments --}}
+
+                  {{-- Like Button --}}
+<form action="{{ route('agency.like', $job->id) }}" method="POST" class="d-inline">
+    @csrf
+    <button type="submit" class="btn btn-outline-primary btn-sm">
+        👍 Like ({{ $job->likes->count() }})
+    </button>
+</form>
+
+{{-- Comments --}}
+<div class="mt-3">
+    <form action="{{ route('agency.comment', $job->id) }}" method="POST">
+        @csrf
+        <div class="input-group">
+            <input type="text" name="content" class="form-control" placeholder="Write a comment..." required>
+            <button class="btn btn-primary">Post</button>
+        </div>
+    </form>
+
+    Show comments
+    <div class="mt-2">
+        @foreach($job->comments as $comment)
+            <div class="border p-2 mb-1 rounded">
+                <strong>{{ $comment->user->name }}</strong>: {{ $comment->content }}
+                <div class="text-muted small">{{ $comment->created_at->diffForHumans() }}</div>
+            </div>
+        @endforeach
+    </div>
+</div>
+
+        {{-- Like / Comments
         <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
             <div class="d-flex align-items-center text-primary fw-semibold like-btn" style="cursor:pointer;">
                 <i class="fas fa-thumbs-up me-2"></i> Like
@@ -203,9 +233,9 @@
             <div class="text-secondary fw-semibold comment-btn" style="cursor:pointer;" data-bs-toggle="collapse" data-bs-target="#comments-{{ $job->id }}">
                 <i class="fas fa-comment me-2"></i> Comment
             </div>
-        </div>
+        </div> --}}
 
-        {{-- Comment Section --}}
+        {{-- Comment Section
         <div class="collapse mt-3" id="comments-{{ $job->id }}">
             <div class="p-3 border rounded bg-light">
                 <strong>Recommended TESDA Graduates:</strong>
@@ -221,6 +251,7 @@
                 <input type="text" class="form-control mt-2" placeholder="Write a comment...">
             </div>
         </div>
+    </form>  --}}
 
     </div> <!-- card-body -->
 
@@ -275,28 +306,7 @@
               @endif
           </p>
 
-          {{-- Likes and Comments --}}
-          <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
-              <div class="d-flex align-items-center text-primary fw-semibold like-btn" style="cursor:pointer;">
-                  <i class="fas fa-thumbs-up me-2"></i> Like
-              </div>
-              <div class="text-secondary fw-semibold comment-btn" style="cursor:pointer;">
-                  <i class="fas fa-comment me-2"></i> Comment
-              </div>
-          </div>
-          <div class="mt-3">
-              <strong>Recommended TESDA Graduates:</strong>
-              <ul class="list-group mt-2">
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <div>
-                          <a href="#" class="fw-bold">Juan Dela Cruz</a>
-                          <br><a href="#">View Resume</a>
-                      </div>
-                      <button class="btn btn-primary btn-sm"><i class="fas fa-envelope"></i> Send Message</button>
-                  </li>
-              </ul>
-              <input type="text" class="form-control mt-2" placeholder="Write a comment...">
-          </div>
+
       </div>
     </div>
   </div>

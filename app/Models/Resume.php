@@ -10,6 +10,7 @@ class Resume extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'first_name',
         'last_name',
         'middle_name',
@@ -32,5 +33,13 @@ class Resume extends Model
         'skills',
         'certification_name',
         'certification_year',
+        'pdf_path',
+        'parsed_skills',
+        'parsed_courses',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

@@ -107,5 +107,10 @@
                         {{ isset($resume) ? 'Update Resume' : 'Save Resume' }}
                     </button>
                 </div>
+                @if(isset($resume) && $resume->pdf_path)
+    <a href="{{ asset($resume->pdf_path) }}" class="btn btn-success mt-2" target="_blank">
+        Download Resume PDF
+    </a>
+@endif
             </form>
 @endsection
