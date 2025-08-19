@@ -23,7 +23,6 @@ use App\Http\Controllers\Tesda\TesdaHomeController;
 use App\Http\Controllers\Agency\AgencyDashboardController;
 use App\Http\Controllers\Agency\JobInteractionController;  
 
-
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -189,6 +188,8 @@ Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function (
     Route::delete('/{id}', [JobPostController::class, 'destroy'])
         ->name('job-posts.destroy');
     Route::get('/manage-posts', [JobPostController::class, 'manage'])->name('manage-posts');
-
+    
+    Route::get('/profile/{id}', [AgencyProfileController::class, 'show'])
+        ->name('show');
     
 });
