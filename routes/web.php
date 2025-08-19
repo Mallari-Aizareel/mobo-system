@@ -19,6 +19,7 @@ use App\Http\Controllers\Tesda\TesdaProfileController;
 use App\Http\Controllers\Tesda\TesdaResumeController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Tesda\TesdaDashboardController;
+use App\Http\Controllers\Tesda\TesdaHomeController;
 use App\Http\Controllers\Agency\AgencyDashboardController;
 Route::get('/', function () {
     return view('auth.login');
@@ -113,8 +114,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 });
 
 Route::prefix('tesda')->name('tesda.')->middleware(['auth'])->group(function () {
-    Route::get('/home', fn() => view('tesda.home'))
+    Route::get('/home', [TesdaHomeController::class, 'index'])
         ->name('home');
+
     Route::get('/dashboard', [TesdaDashboardController::class, 'index'])
         ->name('dashboard');
     Route::get('/class/{id}', [TesdaDashboardController::class, 'show'])
@@ -180,5 +182,8 @@ Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function (
     Route::delete('/{id}', [JobPostController::class, 'destroy'])
         ->name('job-posts.destroy');
     Route::get('/manage-posts', [JobPostController::class, 'manage'])->name('manage-posts');
+
+    Route::get('/profile/{id}', [AgencyProfileController::class, 'show'])
+        ->name('show');
 
 });
