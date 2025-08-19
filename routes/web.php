@@ -22,9 +22,6 @@ use App\Http\Controllers\Tesda\TesdaDashboardController;
 use App\Http\Controllers\Agency\AgencyDashboardController;
 use App\Http\Controllers\Agency\JobInteractionController;  
 
-use App\Http\Controllers\Api\MatchingController;
-
-
 
 Route::get('/', function () {
     return view('auth.login');
@@ -198,16 +195,5 @@ Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function (
     Route::delete('/comments/{id}', [JobPostController::class, 'deleteComment'])
     ->name('destroy');
 
-});
-
-
-
-
-    Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/match/job-post/{id}/candidates', [MatchingController::class, 'jobPostCandidates']);
-    Route::post('/match/job-post/{id}/recommend', [MatchingController::class, 'recommendForJob']);
-
-    Route::get('/match/resume/{id}/jobs', [MatchingController::class, 'resumeMatches']);
-    Route::post('/match/resume/{id}/recommend', [MatchingController::class, 'recommendForResume']);
-
+    
 });
