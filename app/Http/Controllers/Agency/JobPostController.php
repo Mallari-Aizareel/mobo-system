@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\JobPost;
 use App\Models\JobType;
 use Illuminate\Http\Request;
+use App\Models\JobRecommendation;
+use App\Models\Resume;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class JobPostController extends Controller
 {
@@ -14,13 +18,16 @@ class JobPostController extends Controller
     {
         $search = $request->input('search');
 
-        $jobPosts = JobPost::with('jobType', 'agency')
+       $jobPosts = JobPost::with(['recommendations' => function($q) {
+                $q->where('match_score', '>=', 30);
+            }, 'jobType', 'agency'])
             ->when($search, function ($query, $search) {
                 $query->where('job_position', 'like', "%{$search}%")
                     ->orWhere('job_description', 'like', "%{$search}%");
             })
             ->latest()
             ->get();
+
 
         $jobTypes = JobType::all();
 
@@ -66,7 +73,7 @@ class JobPostController extends Controller
             $imagePath = $request->file('image')->store('job_images', 'public');
         }
 
-        JobPost::create([
+        $jobPosts = JobPost::create([
             'agency_id' => Auth::id(),
             'job_position' => $jobPosition,
             'job_description' => $request->job_description,
@@ -77,7 +84,10 @@ class JobPostController extends Controller
             'job_image' => $imagePath,
         ]);
 
-        return redirect()->route('agency.job-posts.index')->with('success', 'Job post created successfully.');
+        $this->runResumeMatching($jobPosts);
+
+        return redirect()->route('agency.job-posts.index')
+            ->with('success', 'Job post created successfully. Matching resumes are being recommended.');
     }
 
 
@@ -166,7 +176,6 @@ class JobPostController extends Controller
 {
     $comment = \App\Models\Comment::findOrFail($id);
 
-    // Only allow the agency who owns the post to delete
     if ($comment->jobPost->agency_id !== Auth::id()) {
         abort(403, 'Unauthorized action.');
     }
@@ -175,4 +184,116 @@ class JobPostController extends Controller
 
     return back()->with('success', 'Comment deleted successfully.');
 }
+
+protected function runResumeMatching(JobPost $jobPost)
+{
+    $job = $jobPost;
+    $resumes = \App\Models\Resume::all(); // fetch all user resumes
+
+    foreach ($resumes as $resume) {
+        try {
+            // 1️⃣ Submit resume to Sharp API
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . config('services.sharpapi.key'),
+            ])->attach(
+                'file',
+                file_get_contents(public_path($resume->pdf_path)),
+                basename($resume->pdf_path)
+            )->post('https://sharpapi.com/api/v1/hr/resume_job_match_score', [
+                'content' => $job->job_position . "\n\n" . $job->job_description,
+            ]);
+
+            $result = $response->json();
+
+            Log::info('API raw response', [
+                'job_id' => $job->id,
+                'resume' => $resume->pdf_path,
+                'response' => $result,
+            ]);
+
+            // 2️⃣ Save recommendation as pending
+            $recommendation = \App\Models\JobRecommendation::create([
+                'job_post_id' => $job->id,
+                'user_id' => $resume->user_id,
+                'resume_path' => $resume->pdf_path,
+                'match_score' => 0, // initial 0
+                'status_url' => $result['status_url'] ?? null, // for polling
+            ]);
+
+            Log::info('Saved pending recommendation', [
+                'job_id' => $job->id,
+                'resume_id' => $resume->id,
+                'user_id' => $resume->user_id,
+                'resume_path' => $resume->pdf_path,
+                'status_url' => $result['status_url'] ?? 'N/A',
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Resume match submission failed', [
+                'job_id' => $job->id,
+                'resume_id' => $resume->id,
+                'error' => $e->getMessage(),
+            ]);
+            continue;
+        }
+    }
+
+    Log::info('All resumes submitted for job', [
+        'job_id' => $job->id,
+        'total_resumes' => $resumes->count(),
+    ]);
+
+    // 3️⃣ Poll pending recommendations and update match_score
+    $pending = \App\Models\JobRecommendation::where('match_score', 0)
+        ->whereNotNull('status_url')
+        ->get();
+
+    foreach ($pending as $rec) {
+        try {
+            $statusResponse = Http::withHeaders([
+                'Authorization' => 'Bearer ' . config('services.sharpapi.key'),
+            ])->get($rec->status_url);
+
+            $statusData = $statusResponse->json();
+            Log::info('Status response', $statusData);
+
+            if (isset($statusData['data']['attributes']['status']) && $statusData['data']['attributes']['status'] === 'success') {
+                
+                // Double decode: API returns JSON string inside JSON
+                $resultJson = $statusData['data']['attributes']['result'] ?? '{}';
+                $resultData = json_decode($resultJson, true);
+
+                if (is_string($resultData)) {
+                    $resultData = json_decode($resultData, true);
+                }
+
+                $overallMatch = $resultData['match_scores']['overall_match'] ?? 0;
+
+                $rec->update([
+                    'match_score' => $overallMatch,
+                    'details' => json_encode($resultData['match_scores'] ?? []),
+                ]);
+
+                Log::info('Updated recommendation', [
+                    'job_id' => $rec->job_post_id,
+                    'user_id' => $rec->user_id,
+                    'resume_path' => $rec->resume_path,
+                    'match_score' => $overallMatch,
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Failed polling recommendation', [
+                'job_id' => $rec->job_post_id,
+                'user_id' => $rec->user_id,
+                'resume_path' => $rec->resume_path,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    return back()->with('success', 'Resumes submitted and pending matches are being processed.');
+}
+
+
 }

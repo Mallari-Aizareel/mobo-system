@@ -60,19 +60,15 @@ class TesdaResumeController extends Controller
             mkdir($pdfFolder, 0755, true);
         }
 
-        // Generate PDF
         $pdf = Pdf::loadView('tesda.resume-pdf', compact('resume'));
         $pdfPath = 'resumes/resume_' . Auth::id() . '.pdf';
 
-        // Delete old PDF if exists
         if ($resume->pdf_path && file_exists(public_path($resume->pdf_path))) {
             unlink(public_path($resume->pdf_path));
         }
 
-        // Save new PDF
         $pdf->save(public_path($pdfPath));
 
-        // Update database with PDF path
         $resume->update(['pdf_path' => $pdfPath]);
 
         return redirect()->route('tesda.resume')->with('success', $message);

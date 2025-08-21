@@ -33,12 +33,18 @@ class JobPost extends Model
     }
 
     public function likes()
-{
-    return $this->hasMany(Like::class);
-}
+    {
+        return $this->hasMany(Like::class);
+    }
 
-public function comments()
-{
-    return $this->hasMany(Comment::class);
-}
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function recommendations()
+    {
+        return $this->hasMany(JobRecommendation::class);
+    }
+
 }

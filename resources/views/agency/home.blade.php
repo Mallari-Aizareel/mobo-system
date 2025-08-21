@@ -214,15 +214,20 @@
         </div>
     </form>
 
-    Show comments
     <div class="mt-2">
-        @foreach($job->comments as $comment)
-            <div class="border p-2 mb-1 rounded">
-                <strong>{{ $comment->user->name }}</strong>: {{ $comment->content }}
-                <div class="text-muted small">{{ $comment->created_at->diffForHumans() }}</div>
+       @foreach ($job->recommendations->where('match_score', '>=', 30) as $rec)
+            <div class="p-3 border rounded mb-2">
+                <strong>User:</strong> {{ $rec->user->name ?? 'Unknown' }}  
+                <strong>Score:</strong> {{ $rec->match_score }}%  
+                <a href="{{ asset('storage/'.$rec->resume_path) }}" target="_blank">View Resume</a>
             </div>
         @endforeach
+
     </div>
+
+
+
+
 </div>
 
         {{-- Like / Comments

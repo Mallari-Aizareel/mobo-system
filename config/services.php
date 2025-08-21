@@ -36,8 +36,8 @@ return [
     ],
 
 'sharpapi' => [
-    'endpoint' => env('SHARP_API_ENDPOINT', 'https://api.sharpscan.ai/parse'),
-    'key'      => env('SHARP_API_KEY'),
-    ],
+    'key' => env('SHARP_API_KEY'),
+],
+
 
 ];
