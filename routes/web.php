@@ -187,7 +187,8 @@ Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function (
         ->name('job-posts.update');
     Route::delete('/{id}', [JobPostController::class, 'destroy'])
         ->name('job-posts.destroy');
-    Route::get('/manage-posts', [JobPostController::class, 'manage'])->name('manage-posts');
+    Route::get('/manage-posts', [JobPostController::class, 'manage'])
+        ->name('manage-posts');
     
     Route::get('/profile/{id}', [AgencyProfileController::class, 'show'])
         ->name('show');

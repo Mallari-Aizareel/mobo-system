@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "100c41a98c4b9ac751d73406e6539651",
+    "content-hash": "2add1ce7269feca3269c41038e8b9fbd",
     "packages": [
         {
             "name": "almasaeed2010/adminlte",
@@ -5361,6 +5361,90 @@
                 "source": "https://github.com/sharpapi/php-core/tree/v1.0.2"
             },
             "time": "2025-05-01T10:59:20+00:00"
+        },
+        {
+            "name": "sharpapi/sharpapi-laravel-client",
+            "version": "v1.2.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sharpapi/sharpapi-laravel-client.git",
+                "reference": "66fa2a3d5d24629802dac51789234da9e28b900b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sharpapi/sharpapi-laravel-client/zipball/66fa2a3d5d24629802dac51789234da9e28b900b",
+                "reference": "66fa2a3d5d24629802dac51789234da9e28b900b",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^7.0",
+                "illuminate/contracts": "^9.0|^10.0|^11.0|^12.0",
+                "kongulov/interact-with-enum": "^1.0",
+                "laravel/framework": "^9.0|^10.0|^11.0|^12.0",
+                "php": "^8.1",
+                "sharpapi/php-core": "^1.0",
+                "spatie/url": "^2.4"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "SharpApiService": "SharpAPI\\SharpApiService\\Facades\\SharpApiService"
+                    },
+                    "providers": [
+                        "SharpAPI\\SharpApiService\\SharpApiServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "SharpAPI\\SharpApiService\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dawid Makowski",
+                    "email": "contact@sharpapi.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "SharpAPI.com - AI-Powered Swiss Army Knife API. Save countless coding hours and supercharge your app with AI capabilities in just 2 lines of code.",
+            "homepage": "https://github.com/sharpapi/sharpapi-laravel-client",
+            "keywords": [
+                "AI-powered",
+                "Content Analysis",
+                "Content Generation",
+                "Marketing Automation",
+                "RESTful API",
+                "SharpAPI",
+                "ai api",
+                "ai capabilities",
+                "api",
+                "api integration",
+                "artificial intelligence",
+                "e-commerce",
+                "hospitality",
+                "hr tech",
+                "laravel",
+                "natural language processing",
+                "php",
+                "software development",
+                "tourism",
+                "travel"
+            ],
+            "support": {
+                "issues": "https://github.com/sharpapi/sharpapi-laravel-client/issues",
+                "source": "https://github.com/sharpapi/sharpapi-laravel-client/tree/v1.2.4"
+            },
+            "time": "2025-03-04T06:58:46+00:00"
         },
         {
             "name": "spatie/laravel-data",
