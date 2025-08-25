@@ -21,7 +21,11 @@ use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Tesda\TesdaDashboardController;
 use App\Http\Controllers\Tesda\TesdaHomeController;
 use App\Http\Controllers\Agency\AgencyDashboardController;
-use App\Http\Controllers\Agency\JobInteractionController;  
+use App\Http\Controllers\Agency\JobInteractionController; 
+use App\Http\Controllers\Agency\MessageController; 
+use App\Http\Controllers\Tesda\TesdaMessageController;
+use App\Http\Controllers\Admin\AdminMessageController;
+use App\Http\Controllers\Tesda\TesdaNotificationController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -113,6 +117,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::delete('faqs/{faq}', [FaqController::class, 'destroy'])
         ->name('faqs.destroy');
 
+    Route::get('messages', [AdminMessageController::class, 'index'])
+        ->name('messages-index');
+    Route::post('messages', [AdminMessageController::class, 'store'])
+        ->name('messages-store');
+
+
 });
 
 Route::prefix('tesda')->name('tesda.')->middleware(['auth'])->group(function () {
@@ -158,6 +168,21 @@ Route::prefix('tesda')->name('tesda.')->middleware(['auth'])->group(function () 
     // Auto-apply route
     Route::post('/auto/{id}', [JobInteractionController::class, 'apply'])
         ->name('apply');
+
+
+    Route::get('Inboxes', [TesdaMessageController::class, 'index'])
+        ->name('messages-index');
+    Route::post('messages', [TesdaMessageController::class, 'store'])
+        ->name('messages-store');
+    Route::put('messages/{id}', [TesdaMessageController::class, 'update'])
+        ->name('messages-update');
+    Route::delete('messages/{id}', [TesdaMessageController::class, 'destroy'])
+        ->name('messages-destroy');
+
+    Route::get('notifications', [TesdaNotificationController::class, 'index'])
+        ->name('notifications');
+    Route::get('notifications/read/{id}', [TesdaNotificationController::class, 'markAsRead'])
+        ->name('notifications-read');
 });
 
 
@@ -198,6 +223,15 @@ Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function (
     Route::post('/comment{id}', [JobInteractionController::class, 'comment'])
         ->name('comment');
     Route::delete('/comments/{id}', [JobPostController::class, 'deleteComment'])
-    ->name('destroy');
+        ->name('destroy');
     
+    Route::get('messages', [MessageController::class, 'index'])
+        ->name('messages-index');
+    Route::post('/messages', [MessageController::class, 'store'])
+        ->name('messages-store');
+    Route::put('/messages/{id}', [MessageController::class, 'update'])
+        ->name('messages-update'); // Update
+    Route::delete('/messages/{id}', [MessageController::class, 'destroy'])
+        ->name('messages-destroy'); // Delete
+
 });

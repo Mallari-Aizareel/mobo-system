@@ -197,7 +197,7 @@ protected function runResumeMatching(JobPost $jobPost)
                 'Authorization' => 'Bearer ' . config('services.sharpapi.key'),
             ])->attach(
                 'file',
-                file_get_contents(public_path($resume->pdf_path)),
+                file_get_contents(public_path('storage/' . $resume->pdf_path)),
                 basename($resume->pdf_path)
             )->post('https://sharpapi.com/api/v1/hr/resume_job_match_score', [
                 'content' => $job->job_position . "\n\n" . $job->job_description,

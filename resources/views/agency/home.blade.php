@@ -127,11 +127,11 @@
             <div class="d-flex align-items-center">
                 <img src="{{ $job->agency->profile_picture 
                     ? asset('storage/' . $job->agency->profile_picture) 
-                    : 'https://ui-avatars.com/api/?name=' . urlencode($job->agency->name ?? 'Agency') }}" 
+                    : 'https://ui-avatars.com/api/?name=' . urlencode($job->agency->firstname ?? 'Agency') }}" 
                     alt="Agency" class="rounded-circle me-3 shadow" style="width:50px; height:50px; object-fit:cover; border:2px solid #0d6efd;">
                 <div>
                     <a href="{{ route('agency.profile', $job->agency_id) }}" class="fw-bold text-primary mb-0 d-block" style="text-decoration:none;">
-                        {{ $job->agency->name ?? 'Unknown Agency' }}
+                        {{ $job->agency->firstname ?? 'Unknown Agency' }}
                     </a>
                     <small class="text-muted fst-italic">{{ $job->created_at->diffForHumans() }}</small>
                 </div>
@@ -214,14 +214,61 @@
         </div>
     </form>
 
-    <div class="mt-2">
-       @foreach ($job->recommendations->where('match_score', '>=', 30) as $rec)
-            <div class="p-3 border rounded mb-2">
-                <strong>User:</strong> {{ $rec->user->name ?? 'Unknown' }}  
-                <strong>Score:</strong> {{ $rec->match_score }}%  
-                <a href="{{ asset('storage/'.$rec->resume_path) }}" target="_blank">View Resume</a>
+    @foreach ($job->recommendations->where('match_score', '>=', 30) as $rec)
+        <div class="p-3 border rounded mb-3 bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ $rec->user->firstname ?? 'Unknown' }}  </strong>
+                    {{-- <br>
+                    <strong>Score:</strong> {{ $rec->match_score }}%   --}}
+                    <br>
+                    <a href="{{ asset('storage/'.$rec->resume_path) }}" target="_blank" class="text-primary fw-semibold">View Resume</a>
+                </div>
+            
+            <!-- Message Button -->
+            <button class="btn btn-outline-primary btn-sm" 
+                data-bs-toggle="modal" 
+                data-bs-target="#messageModal{{ $rec->user_id }}">
+                <i class="fas fa-envelope"></i> Message
+            </button>
+        </div>
+    </div>
+
+        <div class="mt-2">
+        @foreach($job->comments as $comment)
+            <div class="border p-2 mb-1 rounded">
+                <strong>{{ $comment->user->firstname }}</strong>: {{ $comment->content }}
+                <div class="text-muted small">{{ $comment->created_at->diffForHumans() }}</div>
             </div>
         @endforeach
+    </div>
+
+    <!-- Inbox Modal -->
+    <div class="modal fade" id="messageModal{{ $rec->user_id }}" tabindex="-1" aria-labelledby="messageModalLabel{{ $rec->user_id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="messageModalLabel{{ $rec->user_id }}">Send Message to {{ $rec->user->firstname }}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                    <form action="{{ route('agency.messages-store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="receiver_id" value="{{ $rec->user_id }}">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Message</label>
+                                <textarea name="message" class="form-control" rows="4" placeholder="Write your message..." required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">Send</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+            </div>
+        </div>
+    </div>
+@endforeach
 
     </div>
 

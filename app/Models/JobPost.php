@@ -47,4 +47,14 @@ class JobPost extends Model
         return $this->hasMany(JobRecommendation::class);
     }
 
+    /**
+     * Accessor: return full image URL
+     */
+    public function getJobImageUrlAttribute()
+    {
+        if ($this->job_image) {
+            return asset('storage/' . $this->job_image);
+        }
+        return asset('images/default-job.png'); // fallback if no image
+    }
 }

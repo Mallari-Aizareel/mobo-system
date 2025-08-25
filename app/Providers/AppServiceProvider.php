@@ -52,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
         ],
         [
             'text' => 'Inbox',
-            'url'  => 'admin/dashboard',
+            'url'  => 'admin/messages',
             'icon' => 'fas fa-inbox',
         ],
         [
@@ -91,7 +91,7 @@ class AppServiceProvider extends ServiceProvider
                 ['text' => 'Home', 'url' => 'tesda/home', 'icon' => 'fas fa-home'],
                 ['text' => 'Dashboard', 'url' => 'tesda/dashboard', 'icon' => 'fas fa-tachometer-alt'],
                 ['text' => 'Notifications', 'url' => 'tesda/notifications', 'icon' => 'fas fa-bell'],
-                ['text' => 'Inbox', 'url' => 'tesda/inbox', 'icon' => 'fas fa-inbox'],
+                ['text' => 'Inbox', 'url' => 'tesda/Inboxes', 'icon' => 'fas fa-inbox'],
                 ['text' => 'Enroll Courses', 'url' => 'tesda/enroll-courses', 'icon' => 'fas fa-book-open'],
                 ['text' => 'FAQs', 'url' => 'tesda/faqs', 'icon' => 'fas fa-question-circle'],
             ];
@@ -100,6 +100,7 @@ class AppServiceProvider extends ServiceProvider
                     ['text' => 'Home', 'url' => 'agency/home', 'icon' => 'fas fa-home'],
                     ['text' => 'Dashboard', 'url' => 'agency/dashboard', 'icon' => 'fas fa-tachometer-alt'],
                     ['text' => 'Manage Post', 'url' => 'agency/manage', 'icon' => 'fas fa-file-alt'],
+                    ['text' => 'Inbox', 'url' => 'agency/messages', 'icon' => 'fas fa-inbox'],
                     ['text' => 'FAQs', 'url' => 'agency/faqs', 'icon' => 'fas fa-file-alt'],
 
                 ];
