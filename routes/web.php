@@ -26,6 +26,7 @@ use App\Http\Controllers\Agency\MessageController;
 use App\Http\Controllers\Tesda\TesdaMessageController;
 use App\Http\Controllers\Admin\AdminMessageController;
 use App\Http\Controllers\Tesda\TesdaNotificationController;
+use App\Http\Controllers\Agency\AgencyFeedbackController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -233,5 +234,11 @@ Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function (
         ->name('messages-update'); // Update
     Route::delete('/messages/{id}', [MessageController::class, 'destroy'])
         ->name('messages-destroy'); // Delete
+
+    Route::post('/agency/{agency}/like', [AgencyFeedbackController::class, 'like'])
+    ->name('like');
+    Route::post('/agency/{agency}/rate', [AgencyFeedbackController::class, 'rate'])
+    ->name('rate');
+
 
 });

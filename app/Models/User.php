@@ -104,4 +104,27 @@ class User extends Authenticatable
     return $this->belongsTo(Role::class, 'role_id');
 }
 
+public function feedback()
+{
+    return $this->hasMany(\App\Models\AgencyFeedback::class, 'agency_id');
+}
+
+public function getLikesCountAttribute()
+{
+    return $this->feedback()->where('liked', true)->count();
+}
+
+public function getAverageRatingAttribute()
+{
+    return round($this->feedback()->whereNotNull('rating')->avg('rating') ?? 0, 1);
+}
+
+public function isLikedByUser($userId)
+{
+    return $this->feedback()
+                ->where('user_id', $userId)
+                ->where('liked', true)
+                ->exists();
+}
+
 }

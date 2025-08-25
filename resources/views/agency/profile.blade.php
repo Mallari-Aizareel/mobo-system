@@ -186,25 +186,39 @@
                 <span>{{ $agency->email ?? 'No email' }}</span>
             </div>
 
-            <div class="detail-item ratings">
-                @php $rating = $agency->rating ?? 0; @endphp
-                @for($i=1; $i<=5; $i++)
-                    @if($i <= $rating)
-                        <i class="fas fa-star"></i>
-                    @else
-                        <i class="far fa-star"></i>
-                    @endif
-                @endfor
-            </div>
+            {{-- Ratings --}}
+<div class="detail-item ratings">
+    @php $rating = round($agency->average_rating); @endphp
+    <form method="POST" action="{{ route('agency.rate', $agency->id) }}">
+        @csrf
+        @for($i=1; $i<=5; $i++)
+            <button type="submit" name="rating" value="{{ $i }}" style="background:none;border:none;">
+                @if($i <= $rating)
+                    <i class="fas fa-star"></i>
+                @else
+                    <i class="far fa-star"></i>
+                @endif
+            </button>
+        @endfor
+    </form>
+</div>
 
-            <div class="detail-item like-section">
-                <form method="POST" action="{{ route('agency.like', $agency->id) }}">
-                    @csrf
-                    <button type="submit"><i class="fas fa-thumbs-up"></i></button>
-                </form>
-                <span>{{ $agency->likes_count ?? 0 }}</span>
-            </div>
-        </div>
+{{-- Likes --}}
+<div class="detail-item like-section">
+    <form method="POST" action="{{ route('agency.like', $agency->id) }}">
+        @csrf
+        <button type="submit" style="background:none;border:none;">
+            @if($agency->isLikedByUser(auth()->id()))
+                <i class="fas fa-thumbs-up text-primary"></i>
+            @else
+                <i class="far fa-thumbs-up"></i>
+            @endif
+        </button>
+    </form>
+    <span>{{ $agency->likes_count }} Likes</span>
+</div>
+
+
 
         {{-- About --}}
         <div class="about-section">
@@ -235,6 +249,7 @@
         @endif
     </div>
 </div>
+
 
     </div>
 </div>
