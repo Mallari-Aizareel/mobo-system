@@ -3,7 +3,7 @@
 @section('title', 'Job Posts')
 
 @section('content_header')
-    <h4> </h4>
+    <h4>Job Posts</h4>
 @stop
 
 @section('content')
@@ -19,67 +19,58 @@
                 alt="Profile" 
                 class="rounded-circle me-3 shadow-sm" 
                 style="width: 45px; height: 45px; object-fit: cover;">
-            <button class="btn btn-outline-primary w-100 text-start fw-semibold" data-toggle="modal" data-target="#createPostModal" style="font-size: 1rem;">
+            <button class="btn btn-outline-primary w-100 text-start fw-semibold" data-bs-toggle="modal" data-bs-target="#createPostModal" style="font-size: 1rem;">
                 <i class="fas fa-pencil-alt me-2"></i> Create Post
             </button>
         </div>
     </div>
 
     {{-- Modal for Creating Job Post --}}
-    <div class="modal fade" id="createPostModal" tabindex="-1" role="dialog" aria-labelledby="createPostModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl" role="document">
+    <div class="modal fade" id="createPostModal" tabindex="-1" aria-labelledby="createPostModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="createPostModalLabel">Post a New Job</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('agency.job-posts.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="row g-3">
-                            <!-- Job Title -->
+                            {{-- Job Title --}}
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Job Title</label>
                                 <input type="text" name="job_title" class="form-control" required>
                             </div>
-
-                            <!-- Job Location -->
+                            {{-- Job Location --}}
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Job Location</label>
                                 <input type="text" name="job_location" class="form-control" required>
                             </div>
-
-                            <!-- Salary -->
+                            {{-- Salary --}}
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Salary</label>
                                 <input type="number" name="job_salary" class="form-control">
                             </div>
-
-                            <!-- Image Upload -->
+                            {{-- Image Upload --}}
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Upload Image (optional)</label>
                                 <input type="file" name="image" class="form-control" accept="image/*" onchange="previewImage(event)">
                                 <div class="mt-2">
-                                    <img id="imagePreview" src="#" alt="Image Preview" 
-                                        style="display: none; max-width: 250px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                    <img id="imagePreview" src="#" alt="Image Preview" style="display: none; max-width: 250px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                 </div>
                             </div>
-
-                            <!-- Job Description (full-width) -->
+                            {{-- Job Description --}}
                             <div class="col-12">
                                 <label class="form-label fw-bold">Job Description</label>
                                 <textarea name="job_description" class="form-control" rows="4" required></textarea>
                             </div>
-
-                            <!-- Qualifications (full-width) -->
+                            {{-- Qualifications --}}
                             <div class="col-12">
                                 <label class="form-label fw-bold">Qualifications</label>
                                 <textarea name="job_qualifications" class="form-control" rows="3"></textarea>
                             </div>
-
-                            <!-- Job Type (checkboxes, full-width) -->
+                            {{-- Job Type --}}
                             <div class="col-12">
                                 <label class="form-label fw-bold">Job Type</label>
                                 <div class="d-flex flex-wrap gap-2">
@@ -104,13 +95,12 @@
                                     @endforeach
                                 </div>
                             </div>
-
                         </div> <!-- row -->
                     </div> <!-- modal-body -->
 
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-success fw-semibold">Post Job</button>
-                        <button type="button" class="btn btn-secondary fw-semibold" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -119,10 +109,8 @@
 
 @foreach($jobPosts as $job)
 <div class="card mb-4 shadow-sm rounded-lg border-0">
-
     <div class="card-body p-4">
-
-        {{-- Agency Info + Ellipsis --}}
+        {{-- Agency Info --}}
         <div class="d-flex align-items-center justify-content-between mb-3">
             <div class="d-flex align-items-center">
                 <img src="{{ $job->agency->profile_picture 
@@ -139,31 +127,28 @@
 
             {{-- Ellipsis dropdown --}}
             <div class="dropdown">
-    <button class="btn btn-link text-muted p-0" type="button" id="optionsMenu{{ $job->id }}" 
-        data-bs-toggle="dropdown" aria-expanded="false"
-        onclick="event.stopPropagation();">
-        <i class="fas fa-ellipsis-h"></i>
-    </button>
-    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="optionsMenu{{ $job->id }}">
-        @if(Auth::id() === $job->agency_id)
-            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editJobModal{{ $job->id }}">Edit Post</a>
-            <form action="{{ route('agency.job-posts.destroy', $job->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this post?');">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="dropdown-item text-danger">Delete Post</button>
-            </form>
-        @else
-            <a class="dropdown-item" href="#">Mute this Agency</a>
-            <a class="dropdown-item" href="#">Ignore notifications from this Agency</a>
-        @endif
-    </div>
-</div>
-
+                <button class="btn btn-link text-muted p-0" type="button" id="optionsMenu{{ $job->id }}" 
+                    data-bs-toggle="dropdown" aria-expanded="false" onclick="event.stopPropagation();">
+                    <i class="fas fa-ellipsis-h"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="optionsMenu{{ $job->id }}">
+                    @if(Auth::id() === $job->agency_id)
+                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editJobModal{{ $job->id }}">Edit Post</a>
+                        <form action="{{ route('agency.job-posts.destroy', $job->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this post?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="dropdown-item text-danger">Delete Post</button>
+                        </form>
+                    @else
+                        <a class="dropdown-item" href="#">Mute this Agency</a>
+                        <a class="dropdown-item" href="#">Ignore notifications from this Agency</a>
+                    @endif
+                </div>
+            </div>
         </div>
 
-        {{-- Clickable area for modal --}}
-        <div class="job-clickable-area" data-toggle="modal" data-target="#jobModal{{ $job->id }}" style="cursor:pointer;">
-            {{-- Job Details --}}
+        {{-- Job Clickable Area --}}
+        <div class="job-clickable-area" data-bs-toggle="modal" data-bs-target="#jobModal{{ $job->id }}" style="cursor:pointer;">
             <h5 class="fw-bold mb-2">{{ $job->job_position }}</h5>
             <span class="badge bg-secondary me-2 mb-2"><i class="fas fa-map-marker-alt me-1"></i> {{ $job->job_location ?? 'Not specified' }}</span>
             <div class="mb-3">
@@ -189,126 +174,84 @@
                 @endif
             </div>
 
-            {{-- Full-width Image --}}
             @if($job->job_image)
                 <img src="{{ asset('storage/' . $job->job_image) }}" class="img-fluid rounded shadow-sm mb-3" style="object-fit:cover; width:100%; max-height:400px;">
             @endif
         </div>
 
-
-                  {{-- Like Button --}}
-<form action="{{ route('agency.like', $job->id) }}" method="POST" class="d-inline">
-    @csrf
-    <button type="submit" class="btn btn-outline-primary btn-sm">
-        👍 Like ({{ $job->likes->count() }})
-    </button>
-</form>
-
-{{-- Comments --}}
-<div class="mt-3">
-    <form action="{{ route('agency.comment', $job->id) }}" method="POST">
-        @csrf
-        <div class="input-group">
-            <input type="text" name="content" class="form-control" placeholder="Write a comment..." required>
-            <button class="btn btn-primary">Post</button>
-        </div>
-    </form>
-
-    @foreach ($job->recommendations->where('match_score', '>=', 30) as $rec)
-        <div class="p-3 border rounded mb-3 bg-light">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <strong>{{ $rec->user->firstname ?? 'Unknown' }}  </strong>
-                    {{-- <br>
-                    <strong>Score:</strong> {{ $rec->match_score }}%   --}}
-                    <br>
-                    <a href="{{ asset('storage/'.$rec->resume_path) }}" target="_blank" class="text-primary fw-semibold">View Resume</a>
-                </div>
-            
-            <!-- Message Button -->
-            <button class="btn btn-outline-primary btn-sm" 
-                data-bs-toggle="modal" 
-                data-bs-target="#messageModal{{ $rec->user_id }}">
-                <i class="fas fa-envelope"></i> Message
+        {{-- Like Button --}}
+        <form action="{{ route('agency.like', $job->id) }}" method="POST" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-outline-primary btn-sm">
+                👍 Like ({{ $job->likes->count() }})
             </button>
-        </div>
-    </div>
+        </form>
 
-        <div class="mt-2">
-        @foreach($job->comments as $comment)
-            <div class="border p-2 mb-1 rounded">
-                <strong>{{ $comment->user->firstname }}</strong>: {{ $comment->content }}
-                <div class="text-muted small">{{ $comment->created_at->diffForHumans() }}</div>
-            </div>
-        @endforeach
-    </div>
-
-    <!-- Inbox Modal -->
-    <div class="modal fade" id="messageModal{{ $rec->user_id }}" tabindex="-1" aria-labelledby="messageModalLabel{{ $rec->user_id }}" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="messageModalLabel{{ $rec->user_id }}">Send Message to {{ $rec->user->firstname }}</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        {{-- Comments & Recommendations --}}
+        <div class="mt-3">
+            <form action="{{ route('agency.comment', $job->id) }}" method="POST">
+                @csrf
+                <div class="input-group">
+                    <input type="text" name="content" class="form-control" placeholder="Write a comment..." required>
+                    <button class="btn btn-primary">Post</button>
                 </div>
-                    <form action="{{ route('agency.messages-store') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="receiver_id" value="{{ $rec->user_id }}">
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Message</label>
-                                <textarea name="message" class="form-control" rows="4" placeholder="Write your message..." required></textarea>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">Send</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        </div>
-                    </form>
-            </div>
-        </div>
-    </div>
-@endforeach
+            </form>
 
-    </div>
-
-
-
-
-</div>
-
-        {{-- Like / Comments
-        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
-            <div class="d-flex align-items-center text-primary fw-semibold like-btn" style="cursor:pointer;">
-                <i class="fas fa-thumbs-up me-2"></i> Like
-            </div>
-            <div class="text-secondary fw-semibold comment-btn" style="cursor:pointer;" data-bs-toggle="collapse" data-bs-target="#comments-{{ $job->id }}">
-                <i class="fas fa-comment me-2"></i> Comment
-            </div>
-        </div> --}}
-
-        {{-- Comment Section
-        <div class="collapse mt-3" id="comments-{{ $job->id }}">
-            <div class="p-3 border rounded bg-light">
-                <strong>Recommended TESDA Graduates:</strong>
-                <ul class="list-group mt-2">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
+            @foreach ($job->recommendations->where('match_score', '>=', 30) as $rec)
+                <div class="p-3 border rounded mb-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <a href="#" class="fw-bold">Juan Dela Cruz</a>
-                            <br><a href="#">View Resume</a>
+                            <strong>{{ $rec->user->firstname ?? 'Unknown' }}</strong>
+                            <br>
+                            <button type="button" 
+                                    class="btn btn-link p-0 fw-semibold text-primary view-resume-btn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#resumeModal" 
+                                    data-resume="{{ asset('storage/'.$rec->resume_path) }}?v={{ time() }}" 
+                                    data-name="{{ $rec->user->firstname ?? 'Unknown' }}">
+                                View Resume
+                            </button>
                         </div>
-                        <button class="btn btn-primary btn-sm"><i class="fas fa-envelope"></i> Send Message</button>
-                    </li>
-                </ul>
-                <input type="text" class="form-control mt-2" placeholder="Write a comment...">
-            </div>
+
+                        {{-- Message Button --}}
+                        <button class="btn btn-outline-primary btn-sm" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#messageModal{{ $rec->user_id }}">
+                            <i class="fas fa-envelope"></i> Message
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Inbox Modal --}}
+                <div class="modal fade" id="messageModal{{ $rec->user_id }}" tabindex="-1" aria-labelledby="messageModalLabel{{ $rec->user_id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title" id="messageModalLabel{{ $rec->user_id }}">Send Message to {{ $rec->user->firstname }}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form action="{{ route('agency.messages-store') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="receiver_id" value="{{ $rec->user_id }}">
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Message</label>
+                                        <textarea name="message" class="form-control" rows="4" placeholder="Write your message..." required></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success">Send</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
-    </form>  --}}
 
     </div> <!-- card-body -->
-
 </div>
-
 
 {{-- Job Modal --}}
 <div class="modal fade" id="jobModal{{ $job->id }}" tabindex="-1" aria-labelledby="jobModalLabel{{ $job->id }}" aria-hidden="true">
@@ -316,10 +259,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="jobModalLabel{{ $job->id }}">{{ $job->job_position }}</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
           {{-- Agency Info --}}
@@ -357,22 +297,34 @@
                   @endforeach
               @endif
           </p>
-
-
       </div>
     </div>
   </div>
 </div>
 @endforeach
 
-
-
-
 </div>
 
-{{-- Image Preview Script --}}
+{{-- Resume Modal --}}
+<div class="modal fade" id="resumeModal" tabindex="-1" aria-labelledby="resumeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resumeModalLabel">Resume</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0" style="height: 80vh;">
+                <iframe id="resumeFrame" src="" width="100%" height="100%" frameborder="0" style="border:0;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection
+
 @push('js')
 <script>
+    // Image preview for job create modal
     function previewImage(event) {
         const reader = new FileReader();
         reader.onload = function () {
@@ -382,13 +334,31 @@
         };
         reader.readAsDataURL(event.target.files[0]);
     }
+
+    // Resume modal dynamic loading
+    document.addEventListener('DOMContentLoaded', function () {
+        const resumeModal = document.getElementById('resumeModal');
+        const resumeFrame = document.getElementById('resumeFrame');
+        const resumeModalLabel = document.getElementById('resumeModalLabel');
+
+        resumeModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const resumeUrl = button.getAttribute('data-resume') + '&v=' + new Date().getTime(); // force update
+            const userName = button.getAttribute('data-name');
+            resumeFrame.src = resumeUrl;
+            resumeModalLabel.textContent = `Resume - ${userName}`;
+        });
+
+        resumeModal.addEventListener('hidden.bs.modal', function () {
+            resumeFrame.src = ''; // clear iframe
+        });
+    });
 </script>
 @endpush
-@stop
 
 @section('css')
 <style>
-    .job-type-badge {
+.job-type-badge {
     border-radius: 50px;
     padding: 0.35rem 0.75rem;
     font-size: 0.85rem;
@@ -397,17 +367,14 @@
     display: inline-block;
     margin-bottom: 4px;
 }
-
 .job-type-badge:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
-
 </style>
 @stop
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
 @stop

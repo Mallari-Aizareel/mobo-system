@@ -15,8 +15,24 @@
                 Contacts
             </div>
             <ul class="list-group list-group-flush">
-                @foreach($contacts as $contact)
-                    <a href="{{ route('agency.messages-index', ['user_id' => $contact->id]) }}" 
+                @php
+                    // Separate admin from other contacts
+                    $adminContact = $contacts->firstWhere('role_name', 'admin');
+                    $otherContacts = $contacts->reject(fn($u) => $u->role_name === 'admin');
+                @endphp
+
+                {{-- Admin --}}
+                @if($adminContact)
+                    <a href="{{ route('agency.messages-index', ['user_id' => $adminContact->id]) }}"
+                       class="list-group-item list-group-item-action {{ ($selectedUserId == $adminContact->id) ? 'active' : '' }}">
+                        {{ $adminContact->firstname }} <br>
+                        <small class="text-muted">{{ ucfirst($adminContact->role_name) }}</small>
+                    </a>
+                @endif
+
+                {{-- Other contacts --}}
+                @foreach($otherContacts as $contact)
+                    <a href="{{ route('agency.messages-index', ['user_id' => $contact->id]) }}"
                        class="list-group-item list-group-item-action {{ ($selectedUserId == $contact->id) ? 'active' : '' }}">
                         {{ $contact->firstname }} <br>
                         <small class="text-muted">{{ ucfirst($contact->role_name) }}</small>
@@ -31,12 +47,12 @@
         @if($selectedUserId)
             <div class="card">
                 <div class="card-header bg-secondary text-white">
-                    Chat with {{ $contacts->where('id', $selectedUserId)->first()->firstname ?? 'User' }}
+                    Chat with {{ $contacts->firstWhere('id', $selectedUserId)->firstname ?? 'User' }}
                 </div>
                 <div class="card-body" id="chatBox" style="height: 400px; overflow-y: auto; background-color: #f9f9f9;">
-                    @foreach($messages as $message)
+                    @forelse($messages as $message)
                         @if($message->sender_id == Auth::id())
-                            <!-- Sender -->
+                            <!-- Sender Message (Right) -->
                             <div class="d-flex justify-content-end mb-3">
                                 <div class="p-2 bg-primary text-white rounded" style="max-width: 70%;">
                                     <strong>You</strong><br>
@@ -46,17 +62,19 @@
                                 </div>
                             </div>
                         @else
-                            <!-- Receiver -->
+                            <!-- Receiver Message (Left) -->
                             <div class="d-flex justify-content-start mb-3">
                                 <div class="p-2 bg-light border rounded" style="max-width: 70%;">
-                                    <strong>{{ $contacts->where('id', $selectedUserId)->first()->firstname }}</strong><br>
+                                    <strong>{{ $contacts->firstWhere('id', $selectedUserId)->firstname }}</strong><br>
                                     {{ $message->message }}
                                     <br>
                                     <small class="text-muted">{{ $message->created_at->format('d M Y, h:i A') }}</small>
                                 </div>
                             </div>
                         @endif
-                    @endforeach
+                    @empty
+                        <div class="text-center text-muted">No messages yet. Start the conversation!</div>
+                    @endforelse
                 </div>
                 <div class="card-footer">
                     <form id="messageForm" method="POST">
@@ -97,8 +115,11 @@ $(document).ready(function() {
 
     // Auto-refresh messages
     function loadMessages() {
+        var selectedUserId = "{{ $selectedUserId }}";
+        if (!selectedUserId) return;
+
         $.ajax({
-            url: "{{ route('agency.messages-index', ['user_id' => $selectedUserId]) }}",
+            url: "{{ route('agency.messages-index') }}?user_id=" + selectedUserId,
             method: 'GET',
             success: function(response) {
                 var newChat = $(response).find('#chatBox').html();

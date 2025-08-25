@@ -10,29 +10,49 @@ use Illuminate\Support\Facades\Auth;
 
 class TesdaMessageController extends Controller
 {
+    /**
+     * Display the inbox with contacts and messages
+     */
     public function index(Request $request)
     {
         $selectedUserId = $request->input('user_id');
+        $authId = Auth::id();
 
-        // Fetch all possible contacts except the authenticated TESDA user
+        // Get IDs of users the logged-in user has messages with
+        $contactIds = Message::where('sender_id', $authId)
+                        ->orWhere('receiver_id', $authId)
+                        ->get(['sender_id', 'receiver_id'])
+                        ->flatMap(function ($msg) use ($authId) {
+                            return $msg->sender_id == $authId ? [$msg->receiver_id] : [$msg->sender_id];
+                        })
+                        ->unique()
+                        ->toArray();
+
+        // Include admin by default (assuming role_id = 1)
+        $admin = User::where('role_id', 1)->first();
+        if ($admin) {
+            $contactIds[] = $admin->id;
+        }
+
+        // Fetch contacts
         $contacts = User::with('role')
-            ->where('id', '!=', Auth::id())
+            ->whereIn('id', $contactIds)
             ->get()
             ->map(function ($user) {
                 $user->role_name = $user->role ? $user->role->name : 'User';
                 return $user;
             });
 
-        // Fetch messages only if a user is selected
+        // Fetch messages with selected user
         $messages = [];
         if ($selectedUserId) {
-            $messages = Message::where(function ($query) use ($selectedUserId) {
-                    $query->where('sender_id', Auth::id())
+            $messages = Message::where(function ($query) use ($selectedUserId, $authId) {
+                    $query->where('sender_id', $authId)
                           ->where('receiver_id', $selectedUserId);
                 })
-                ->orWhere(function ($query) use ($selectedUserId) {
+                ->orWhere(function ($query) use ($selectedUserId, $authId) {
                     $query->where('sender_id', $selectedUserId)
-                          ->where('receiver_id', Auth::id());
+                          ->where('receiver_id', $authId);
                 })
                 ->orderBy('created_at', 'asc')
                 ->get();
@@ -41,6 +61,9 @@ class TesdaMessageController extends Controller
         return view('tesda.Inboxes', compact('contacts', 'selectedUserId', 'messages'));
     }
 
+    /**
+     * Store a new message
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -58,6 +81,9 @@ class TesdaMessageController extends Controller
                          ->with('success', 'Message sent successfully!');
     }
 
+    /**
+     * Update an existing message
+     */
     public function update(Request $request, $id)
     {
         $message = Message::findOrFail($id);
@@ -73,6 +99,9 @@ class TesdaMessageController extends Controller
         return back()->with('success', 'Message updated successfully.');
     }
 
+    /**
+     * Delete a message
+     */
     public function destroy($id)
     {
         $message = Message::findOrFail($id);

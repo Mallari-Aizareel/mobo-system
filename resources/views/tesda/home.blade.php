@@ -96,7 +96,7 @@
     </button>
 </form>
 
-{{-- Comments --}}
+{{-- Comments Section --}}
 <div class="mt-3">
     <form action="{{ route('agency.comment', $job->id) }}" method="POST">
         @csrf
@@ -106,21 +106,80 @@
         </div>
     </form>
 
-        <div class="mt-2">
-            @foreach ($job->recommendations->where('match_score', '>=', 30) as $rec)
-        <div class="p-3 border rounded mb-3 bg-light">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="mt-2">
-                    <strong>{{ $rec->user->firstname ?? 'Unknown' }}  </strong>
-                    {{-- <br>
-                    <strong>Score:</strong> {{ $rec->match_score }}%   --}}
-                    <br>
-                    <a href="{{ asset('storage/'.$rec->resume_path) }}" target="_blank" class="text-primary fw-semibold">View Resume</a>
-                </div>
-            </div>
+    <div class="mt-2">
+        @php
+            $recommendations = $job->recommendations->where('match_score', '>=', 30);
+        @endphp
 
-        @endforeach
+        @if($recommendations->count())
+            @foreach ($recommendations as $rec)
+                <div class="p-3 border rounded mb-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="mt-2">
+                            <strong>{{ $rec->user->firstname ?? 'Unknown' }}</strong>
+                            <br>
+                            <!-- Button triggers modal -->
+                            <button type="button" class="btn btn-link p-0 fw-semibold view-resume-btn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#resumeModal" 
+                                    data-resume="{{ asset('storage/'.$rec->resume_path) }}?v={{ time() }}"
+                                    data-name="{{ $rec->user->firstname ?? 'Unknown' }}">
+                                View Resume
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @else
+            <p class="text-muted">No recommendations with match score ≥ 30.</p>
+        @endif
+    </div>
+</div>
+
+<!-- Single Modal for all resumes -->
+<div class="modal fade" id="resumeModal" tabindex="-1" aria-labelledby="resumeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resumeModalLabel">Resume</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0" style="height: 80vh;">
+                <!-- Google Docs Viewer embedded PDF for mobile-friendly WebView -->
+                <iframe id="resumeFrame" 
+                        src="" 
+                        width="100%" 
+                        height="100%" 
+                        frameborder="0" 
+                        style="border:0;">
+                </iframe>
+            </div>
         </div>
+    </div>
+</div>
+
+<!-- JS to load the resume into iframe -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const resumeModal = document.getElementById('resumeModal');
+        const resumeFrame = document.getElementById('resumeFrame');
+        const resumeModalLabel = document.getElementById('resumeModalLabel');
+
+        resumeModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const resumeUrl = button.getAttribute('data-resume') + '&v=' + new Date().getTime(); // cache-busting
+            const userName = button.getAttribute('data-name');
+            resumeFrame.src = resumeUrl;
+            resumeModalLabel.textContent = `Resume - ${userName}`;
+        });
+
+        resumeModal.addEventListener('hidden.bs.modal', function () {
+            resumeFrame.src = ''; // clear iframe when modal closes
+        });
+    });
+</script>
+
+
     {{-- Show comments --}}
     <div class="mt-2">
         @foreach($job->comments as $comment)

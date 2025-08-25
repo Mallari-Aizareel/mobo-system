@@ -61,7 +61,7 @@ class TesdaResumeController extends Controller
         }
 
         $pdf = Pdf::loadView('tesda.resume-pdf', compact('resume'));
-        $pdfPath = 'resumes/resume_' . Auth::id() . '.pdf';
+        $pdfPath = 'storage/resumes/resume_' . Auth::id() . '.pdf';
 
         if ($resume->pdf_path && file_exists(public_path($resume->pdf_path))) {
             unlink(public_path($resume->pdf_path));

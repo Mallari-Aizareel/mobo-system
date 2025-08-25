@@ -18,22 +18,42 @@ class MessageController extends Controller
         $authId = Auth::id();
         $selectedUserId = $request->get('user_id');
 
-        // Fetch all users except the logged-in user, join roles table
-        $contacts = User::select('users.*', 'roles.name as role_name')
-            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
-            ->where('users.id', '!=', $authId)
-            ->orderByRaw("CASE WHEN roles.name = 'admin' THEN 0 ELSE 1 END")
-            ->orderBy('users.name')
-            ->get();
+        // Get IDs of users the logged-in user has messages with
+        $contactIds = Message::where('sender_id', $authId)
+                        ->orWhere('receiver_id', $authId)
+                        ->get(['sender_id','receiver_id'])
+                        ->flatMap(function ($msg) use ($authId) {
+                            return $msg->sender_id == $authId ? [$msg->receiver_id] : [$msg->sender_id];
+                        })
+                        ->unique()
+                        ->toArray();
 
-        // Get messages if a contact is selected
+        // Always include admin (assuming role name = 'admin')
+        $admin = User::whereHas('role', fn($q) => $q->where('name', 'admin'))->first();
+        if ($admin) {
+            $contactIds[] = $admin->id;
+        }
+
+        // Fetch contacts
+        $contacts = User::with('role')
+            ->whereIn('id', $contactIds)
+            ->get()
+            ->map(function($user) {
+                $user->role_name = $user->role ? $user->role->name : 'User';
+                return $user;
+            });
+
+        // Fetch messages if a contact is selected
         $messages = [];
         if ($selectedUserId) {
             $messages = Message::where(function ($query) use ($authId, $selectedUserId) {
-                $query->where('sender_id', $authId)->where('receiver_id', $selectedUserId);
-            })->orWhere(function ($query) use ($authId, $selectedUserId) {
-                $query->where('sender_id', $selectedUserId)->where('receiver_id', $authId);
-            })->orderBy('created_at', 'asc')->get();
+                    $query->where('sender_id', $authId)->where('receiver_id', $selectedUserId);
+                })
+                ->orWhere(function ($query) use ($authId, $selectedUserId) {
+                    $query->where('sender_id', $selectedUserId)->where('receiver_id', $authId);
+                })
+                ->orderBy('created_at', 'asc')
+                ->get();
         }
 
         return view('agency.messages', compact('contacts', 'messages', 'selectedUserId'));
@@ -56,7 +76,7 @@ class MessageController extends Controller
         ]);
 
         return redirect()->route('agency.messages-index', ['user_id' => $request->receiver_id])
-            ->with('success', 'Message sent successfully!');
+                         ->with('success', 'Message sent successfully!');
     }
 
     /**
@@ -64,9 +84,7 @@ class MessageController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'message' => 'required|string|max:1000',
-        ]);
+        $request->validate(['message' => 'required|string|max:1000']);
 
         $message = Message::findOrFail($id);
 
@@ -74,9 +92,7 @@ class MessageController extends Controller
             return back()->with('error', 'You are not authorized to edit this message.');
         }
 
-        $message->update([
-            'message' => $request->message,
-        ]);
+        $message->update(['message' => $request->message]);
 
         return back()->with('success', 'Message updated successfully!');
     }

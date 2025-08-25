@@ -102,15 +102,48 @@
                 <input type="text" name="certification_name" class="form-control mb-2" value="{{ old('certification_name', $resume->certification_name ?? '') }}" placeholder="Certification Name">
                 <input type="number" name="certification_year" class="form-control" value="{{ old('certification_year', $resume->certification_year ?? '') }}" placeholder="Certification Year">
 
-                <div class="text-end">
-                    <button type="submit" class="btn btn-primary mt-3">
+                <!-- Buttons aligned on same line -->
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                    <button type="submit" class="btn btn-primary">
                         {{ isset($resume) ? 'Update Resume' : 'Save Resume' }}
                     </button>
+
+                    @if(isset($resume) && $resume->pdf_path)
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#viewResumeModal">
+                            View Resume
+                        </button>
+                    @endif
                 </div>
-                @if(isset($resume) && $resume->pdf_path)
-    <a href="{{ asset($resume->pdf_path) }}" class="btn btn-success mt-2" target="_blank">
-        Download Resume PDF
-    </a>
-@endif
             </form>
+
+            {{-- Resume Modal --}}
+            @if(isset($resume) && $resume->pdf_path)
+                <div class="modal fade" id="viewResumeModal" tabindex="-1" aria-labelledby="viewResumeModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="viewResumeModalLabel">Resume Preview</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                {{-- Add ?v={{ time() }} to bypass cache --}}
+                                <iframe src="{{ asset('storage/resumes/' . basename($resume->pdf_path)) }}?v={{ time() }}" width="100%" height="600px" frameborder="0"></iframe>
+                            </div>
+                            <div class="modal-footer">
+                                <a href="{{ asset('storage/resumes/' . basename($resume->pdf_path)) }}?v={{ time() }}" target="_blank" class="btn btn-success">Download PDF</a>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+        </div>
+    </div>
+</div>
+
+{{-- Bootstrap CSS & JS --}}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 @endsection

@@ -18,7 +18,7 @@
                 @foreach($contacts as $contact)
                     <a href="{{ route('admin.messages-index', ['user_id' => $contact->id]) }}" 
                        class="list-group-item list-group-item-action {{ ($selectedUserId == $contact->id) ? 'active' : '' }}">
-                        {{ $contact->firstname }} <br>
+                        {{ $contact->firstname ?? 'User' }} <br>
                         <small class="text-muted">{{ ucfirst($contact->role_name ?? 'User') }}</small>
                     </a>
                 @endforeach
@@ -31,10 +31,10 @@
         @if($selectedUserId)
             <div class="card">
                 <div class="card-header bg-secondary text-white">
-                    Chat with {{ $contacts->where('id', $selectedUserId)->first()->firstname ?? 'User' }}
+                    Chat with {{ $contacts->firstWhere('id', $selectedUserId)?->firstname ?? 'User' }}
                 </div>
                 <div id="chat-box" class="card-body" style="height: 400px; overflow-y: auto; background-color: #f9f9f9;">
-                    @foreach($messages as $message)
+                    @forelse($messages as $message)
                         @if($message->sender_id == Auth::id())
                             <!-- Sender Message (Right) -->
                             <div class="d-flex justify-content-end mb-3">
@@ -49,14 +49,16 @@
                             <!-- Receiver Message (Left) -->
                             <div class="d-flex justify-content-start mb-3">
                                 <div class="p-2 bg-light border rounded" style="max-width: 70%;">
-                                    <strong>{{ $contacts->where('id', $selectedUserId)->first()->firstname }}</strong><br>
+                                    <strong>{{ $contacts->firstWhere('id', $selectedUserId)?->firstname ?? 'User' }}</strong><br>
                                     {{ $message->message }}
                                     <br>
                                     <small class="text-muted">{{ $message->created_at->format('d M Y, h:i A') }}</small>
                                 </div>
                             </div>
                         @endif
-                    @endforeach
+                    @empty
+                        <div class="text-center text-muted">No messages yet. Select a contact to start messaging.</div>
+                    @endforelse
                 </div>
                 <div class="card-footer">
                     <form id="message-form" action="{{ route('admin.messages-store') }}" method="POST">
@@ -81,7 +83,6 @@
 $(document).ready(function () {
     $('#message-form').submit(function (e) {
         e.preventDefault();
-
         let formData = $(this).serialize();
         let url = $(this).attr('action');
 
@@ -92,14 +93,17 @@ $(document).ready(function () {
     });
 
     function loadMessages() {
-        $.get("{{ route('admin.messages-index', ['user_id' => $selectedUserId]) }}", function (data) {
+        let selectedUserId = "{{ $selectedUserId }}";
+        if (!selectedUserId) return;
+
+        $.get("{{ route('admin.messages-index') }}?user_id=" + selectedUserId, function (data) {
             let newContent = $(data).find('#chat-box').html();
             $('#chat-box').html(newContent);
             $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
         });
     }
 
-    setInterval(loadMessages, 5000); // Auto-refresh every 5 seconds
+    setInterval(loadMessages, 5000); // Refresh every 5 seconds
 });
 </script>
 @stop
