@@ -88,10 +88,17 @@ class AgencyProfileController extends Controller
         return redirect()->route('agency.edit-info')->with('success', 'Agency profile and representative updated successfully!');
     }
 
-    public function show($id)
-    {
-        $agency = User::findOrFail($id); 
-        return view('agency.profile', compact('agency'));
-    }
+public function show($id)
+{
+    $agency = User::findOrFail($id);
+
+    $averageRating = $agency->average_rating;
+    $myRating = $agency->myRating();
+    $likesCount = $agency->likes_count;
+
+    return view('agency.profile', compact('agency', 'averageRating', 'myRating', 'likesCount'));
+}
+
+    
 
 }

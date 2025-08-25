@@ -109,16 +109,35 @@ public function feedback()
     return $this->hasMany(\App\Models\AgencyFeedback::class, 'agency_id');
 }
 
+/**
+ * Total likes across all users for this agency
+ */
 public function getLikesCountAttribute()
 {
     return $this->feedback()->where('liked', true)->count();
 }
 
+/**
+ * Average rating across all users for this agency
+ */
 public function getAverageRatingAttribute()
 {
     return round($this->feedback()->whereNotNull('rating')->avg('rating') ?? 0, 1);
 }
 
+/**
+ * Logged-in user rating for this agency
+ */
+public function myRating()
+{
+    return $this->feedback()
+                ->where('user_id', auth()->id())
+                ->value('rating');
+}
+
+/**
+ * Check if specific user liked the agency
+ */
 public function isLikedByUser($userId)
 {
     return $this->feedback()

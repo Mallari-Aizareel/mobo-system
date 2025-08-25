@@ -7,119 +7,162 @@
 
 @section('content')
 <style>
+    /* General card styling */
+    .card {
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    /* Profile header */
     .profile-header {
         position: relative;
         text-align: center;
     }
     .profile-bg {
         width: 100%;
-        height: 200px;
+        height: 220px;
         object-fit: cover;
-        border-radius: 0.5rem;
     }
     .profile-picture {
         position: absolute;
-        bottom: -50px;
+        bottom: -60px;
         left: 50%;
         transform: translateX(-50%);
-        border: 4px solid #fff;
+        border: 5px solid #fff;
         border-radius: 50%;
-        width: 120px;
-        height: 120px;
+        width: 130px;
+        height: 130px;
         object-fit: cover;
-        z-index: 2;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
+
+    /* Profile info */
     .profile-info {
-        margin-top: 70px;
+        margin-top: 80px;
         text-align: center;
     }
     .profile-info h3 {
         font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .profile-info small {
+        color: #6c757d;
     }
 
-    /* Contact + details */
+    /* Details */
     .details-section {
-        margin-top: 20px;
-        border-top: 1px solid #ccc;
-        padding-top: 15px;
+        margin-top: 25px;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 10px;
     }
     .detail-item {
         display: flex;
         align-items: center;
-        margin: 8px 0;
-        font-size: 14px;
+        margin: 12px 0;
+        font-size: 15px;
     }
     .detail-item i {
-        margin-right: 8px;
-        color: #333;
+        margin-right: 10px;
+        color: #007bff;
     }
 
     /* Ratings */
-    .ratings {
-        margin: 10px 0;
-        font-size: 16px;
-        color: #f4c150;
+    .ratings strong {
+        display: block;
+        margin-bottom: 6px;
+    }
+    .ratings i {
+        font-size: 18px;
     }
 
     /* Likes */
     .like-section {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin: 10px 0;
+        gap: 10px;
+        margin-top: 15px;
+        font-size: 15px;
     }
     .like-section button {
         border: none;
         background: none;
         cursor: pointer;
-        color: #007bff;
+    }
+    .like-section i {
+        font-size: 20px;
     }
 
-    /* About */
+    /* About section */
     .about-section {
-        margin-top: 20px;
-        padding: 15px;
-        border-top: 1px solid #ccc;
-        font-size: 14px;
+        margin-top: 25px;
+        padding: 20px;
+        border-radius: 10px;
+        background: #fff;
+        border: 1px solid #eee;
+    }
+    .about-section h5 {
+        margin-bottom: 10px;
+        color: #007bff;
     }
 
     /* Gallery */
     .gallery {
-        margin-top: 20px;
-        border-top: 1px solid #ccc;
-        padding-top: 15px;
+        margin-top: 25px;
     }
     .gallery h5 {
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+        color: #007bff;
     }
     .gallery-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
     }
     .gallery-item {
         position: relative;
         overflow: hidden;
-        border-radius: 8px;
+        border-radius: 10px;
         cursor: pointer;
     }
     .gallery-item img {
         width: 100%;
-        height: 100px;
+        height: 120px;
         object-fit: cover;
-        border-radius: 8px;
-        transition: transform 0.2s;
+        border-radius: 10px;
+        transition: transform 0.3s ease;
     }
     .gallery-item:hover img {
-        transform: scale(1.05);
+        transform: scale(1.08);
+    }
+    .gallery-item.more::after {
+        content: attr(data-extra);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.6);
+        color: #fff;
+        font-weight: bold;
+        font-size: 18px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 10px;
     }
 
-    /* Modal (Lightbox) */
+    /* Modal */
+    .modal-content {
+        border-radius: 10px;
+    }
     .modal-img {
         max-width: 100%;
         max-height: 80vh;
         display: block;
         margin: 0 auto;
+        border-radius: 10px;
     }
     .modal-navigation {
         position: absolute;
@@ -130,13 +173,10 @@
         cursor: pointer;
         z-index: 1055;
         user-select: none;
+        padding: 0 15px;
     }
-    .modal-prev {
-        left: 10px;
-    }
-    .modal-next {
-        right: 10px;
-    }
+    .modal-prev { left: 0; }
+    .modal-next { right: 0; }
 </style>
 
 <div class="card">
@@ -151,12 +191,13 @@
             <img src="{{ $agency->profile_picture 
                 ? asset('storage/' . $agency->profile_picture) 
                 : 'https://ui-avatars.com/api/?name='.urlencode($agency->name) }}" 
-                alt="Profile" class="profile-picture img-circle elevation-1">
+                alt="Profile" class="profile-picture">
         </div>
 
         {{-- Info --}}
         <div class="profile-info">
             <h3>{{ $agency->firstname }}</h3>
+            <small>{{ $agency->email }}</small>
         </div>
 
         {{-- Details Section --}}
@@ -186,36 +227,55 @@
                 <span>{{ $agency->email ?? 'No email' }}</span>
             </div>
 
-            {{-- Ratings --}}
+{{-- Ratings --}}
 <div class="detail-item ratings">
-    @php $rating = round($agency->average_rating); @endphp
-    <form method="POST" action="{{ route('agency.rate', $agency->id) }}">
+    <strong>Ratings:</strong>
+    <span class="ml-2">({{ $agency->average_rating }}/5)</span>
+</div>
+
+{{-- My Rating (for non-agency users) --}}
+@if(!auth()->user()->hasRole('agency'))
+<div class="detail-item ratings">
+    <strong>My Rating:</strong>
+    <form method="POST" action="{{ route('agency.rate', $agency->id) }}" class="d-inline">
         @csrf
+        @php $myRating = $agency->myRating(auth()->id()); @endphp
         @for($i=1; $i<=5; $i++)
             <button type="submit" name="rating" value="{{ $i }}" style="background:none;border:none;">
-                @if($i <= $rating)
-                    <i class="fas fa-star"></i>
+                @if($myRating && $i <= $myRating)
+                    <i class="fas fa-star text-primary"></i>
                 @else
-                    <i class="far fa-star"></i>
+                    <i class="far fa-star text-primary"></i>
                 @endif
             </button>
         @endfor
     </form>
+    @if(!$myRating)
+        <span class="text-muted ml-2">(Not rated yet)</span>
+    @endif
 </div>
+@endif
 
 {{-- Likes --}}
 <div class="detail-item like-section">
-    <form method="POST" action="{{ route('agency.like', $agency->id) }}">
-        @csrf
-        <button type="submit" style="background:none;border:none;">
-            @if($agency->isLikedByUser(auth()->id()))
-                <i class="fas fa-thumbs-up text-primary"></i>
-            @else
-                <i class="far fa-thumbs-up"></i>
-            @endif
-        </button>
-    </form>
-    <span>{{ $agency->likes_count }} Likes</span>
+    @if(auth()->user()->hasRole('agency'))
+        {{-- Agency role: show total likes only with icon --}}
+        <i class="fas fa-thumbs-up text-primary"></i>
+        <span>{{ $agency->likes_count }} Likes</span>
+    @else
+        {{-- Other users: can like --}}
+        <form method="POST" action="{{ route('agency.like', $agency->id) }}" class="d-inline">
+            @csrf
+            <button type="submit">
+                @if($agency->isLikedByUser(auth()->id()))
+                    <i class="fas fa-thumbs-up text-primary"></i>
+                @else
+                    <i class="far fa-thumbs-up"></i>
+                @endif
+            </button>
+        </form>
+        <span>{{ $agency->likes_count }} Likes</span>
+    @endif
 </div>
 
 
@@ -226,31 +286,29 @@
             <p>{{ $agency->description ?? 'No description provided.' }}</p>
         </div>
 
-<div class="gallery">
-    <h5><i class="fas fa-image"></i> Gallery</h5>
-    <div class="gallery-grid">
-        @php
-            $images = $agency->jobPosts ? $agency->jobPosts->whereNotNull('job_image') : collect();
-            $firstFour = $images->take(4);
-            $extra = $images->count() - 4;
-        @endphp
+        {{-- Gallery --}}
+        <div class="gallery">
+            <h5><i class="fas fa-image"></i> Gallery</h5>
+            <div class="gallery-grid">
+                @php
+                    $images = $agency->jobPosts ? $agency->jobPosts->whereNotNull('job_image') : collect();
+                    $firstFour = $images->take(4);
+                    $extra = $images->count() - 4;
+                @endphp
 
-        @foreach($firstFour as $image)
-            <div class="gallery-item">
-                <img src="{{ $image->job_image_url }}" alt="Job Post Image">
+                @foreach($firstFour as $image)
+                    <div class="gallery-item" data-image="{{ $image->job_image_url }}">
+                        <img src="{{ $image->job_image_url }}" alt="Job Post Image">
+                    </div>
+                @endforeach
+
+                @if($extra > 0)
+                    <div class="gallery-item more" data-image="{{ $firstFour->last()->job_image_url }}" data-extra="+{{ $extra }} more">
+                        <img src="{{ $firstFour->last()->job_image_url }}" alt="More Images">
+                    </div>
+                @endif
             </div>
-        @endforeach
-
-        @if($extra > 0)
-            <div class="gallery-item more">
-                <img src="{{ $firstFour->last()->job_image_url }}" alt="More Images">
-                <div class="overlay">+{{ $extra }} more</div>
-            </div>
-        @endif
-    </div>
-</div>
-
-
+        </div>
     </div>
 </div>
 
@@ -267,7 +325,6 @@
   </div>
 </div>
 
-{{-- JS for lightbox --}}
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const galleryItems = document.querySelectorAll('.gallery-item');
@@ -280,7 +337,8 @@
         let imageSources = [];
 
         galleryItems.forEach((item, index) => {
-            imageSources.push(item.getAttribute('data-image'));
+            const src = item.querySelector("img").getAttribute("src");
+            imageSources.push(src);
             item.addEventListener('click', () => {
                 currentIndex = index;
                 modalImage.src = imageSources[currentIndex];
