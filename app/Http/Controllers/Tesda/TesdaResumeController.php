@@ -43,6 +43,7 @@ class TesdaResumeController extends Controller
             'certification_year' => 'nullable|digits:4',
         ]);
 
+        // Check if resume exists
         $resume = Resume::where('user_id', Auth::id())->first();
 
         if ($resume) {
@@ -54,21 +55,26 @@ class TesdaResumeController extends Controller
             $message = 'Resume created successfully!';
         }
 
-        
-        $pdfFolder = public_path('resumes');
+        // Make sure the resumes directory exists in storage/app/public/resumes
+        $pdfFolder = storage_path('app/public/resumes');
         if (!file_exists($pdfFolder)) {
             mkdir($pdfFolder, 0755, true);
         }
 
+        // Generate PDF
         $pdf = Pdf::loadView('tesda.resume-pdf', compact('resume'));
-        $pdfPath = 'storage/resumes/resume_' . Auth::id() . '.pdf';
+        $fileName = 'resume_' . Auth::id() . '.pdf';
+        $pdfPath = 'resumes/' . $fileName; // relative to storage/app/public
 
-        if ($resume->pdf_path && file_exists(public_path($resume->pdf_path))) {
-            unlink(public_path($resume->pdf_path));
+        // Delete old file if exists
+        if ($resume->pdf_path && file_exists(storage_path('app/public/' . $resume->pdf_path))) {
+            unlink(storage_path('app/public/' . $resume->pdf_path));
         }
 
-        $pdf->save(public_path($pdfPath));
+        // Save new PDF
+        $pdf->save(storage_path('app/public/' . $pdfPath));
 
+        // Update DB with correct relative path
         $resume->update(['pdf_path' => $pdfPath]);
 
         return redirect()->route('tesda.resume')->with('success', $message);
