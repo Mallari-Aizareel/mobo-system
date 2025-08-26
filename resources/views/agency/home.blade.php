@@ -109,31 +109,33 @@
 
 @foreach($jobPosts as $job)
 <div class="card mb-4 shadow-sm rounded-lg border-0">
-    <div class="card-body p-4">
-        {{-- Agency Info --}}
-        <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="card-body p-3">
+        {{-- Card Header: Agency Info + Ellipsis Menu --}}
+        <div class="d-flex align-items-center justify-content-between mb-2">
             <div class="d-flex align-items-center">
                 <img src="{{ $job->agency->profile_picture 
                     ? asset('storage/' . $job->agency->profile_picture) 
                     : 'https://ui-avatars.com/api/?name=' . urlencode($job->agency->firstname ?? 'Agency') }}" 
-                    alt="Agency" class="rounded-circle me-3 shadow" style="width:50px; height:50px; object-fit:cover; border:2px solid #0d6efd;">
+                    alt="Agency" class="rounded-circle me-2 shadow" style="width:40px; height:40px; object-fit:cover; border:2px solid #0d6efd;">
                 <div>
-                    <a href="{{ route('agency.profile', $job->agency_id) }}" class="fw-bold text-primary mb-0 d-block" style="text-decoration:none;">
+                    <a href="{{ route('agency.show', $job->agency_id) }}" class="fw-bold text-primary d-block" style="text-decoration:none; font-size:0.95rem;">
                         {{ $job->agency->firstname ?? 'Unknown Agency' }}
                     </a>
-                    <small class="text-muted fst-italic">{{ $job->created_at->diffForHumans() }}</small>
+                    <small class="text-muted fst-italic" style="font-size:0.75rem;">{{ $job->created_at->diffForHumans() }}</small>
                 </div>
             </div>
 
-            {{-- Ellipsis dropdown --}}
             <div class="dropdown">
-                <button class="btn btn-link text-muted p-0" type="button" id="optionsMenu{{ $job->id }}" 
-                    data-bs-toggle="dropdown" aria-expanded="false" onclick="event.stopPropagation();">
+                <button class="btn btn-link text-muted p-0" type="button" id="optionsMenu{{ $job->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-ellipsis-h"></i>
                 </button>
-                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="optionsMenu{{ $job->id }}">
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="optionsMenu{{ $job->id }}">
                     @if(Auth::id() === $job->agency_id)
-                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editJobModal{{ $job->id }}">Edit Post</a>
+                        {{-- Redirect to Manage Posts with query param job_id --}}
+                        <a class="dropdown-item" href="{{ route('agency.manage-posts', ['edit_job' => $job->id]) }}">
+                            Edit Post
+                        </a>
+
                         <form action="{{ route('agency.job-posts.destroy', $job->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this post?');">
                             @csrf
                             @method('DELETE')
@@ -149,9 +151,11 @@
 
         {{-- Job Clickable Area --}}
         <div class="job-clickable-area" data-bs-toggle="modal" data-bs-target="#jobModal{{ $job->id }}" style="cursor:pointer;">
-            <h5 class="fw-bold mb-2">{{ $job->job_position }}</h5>
-            <span class="badge bg-secondary me-2 mb-2"><i class="fas fa-map-marker-alt me-1"></i> {{ $job->job_location ?? 'Not specified' }}</span>
-            <div class="mb-3">
+            <h6 class="fw-bold mb-1">{{ $job->job_position }}</h6>
+            <span class="badge bg-secondary me-1 mb-1" style="font-size:0.75rem;">
+                <i class="fas fa-map-marker-alt me-1"></i> {{ $job->job_location ?? 'Not specified' }}
+            </span>
+            <div class="mb-2">
                 @if($job->jobType)
                     @php
                         $typeLabels = [
@@ -161,7 +165,7 @@
                             'remote' => 'Remote',
                             'on_site' => 'On Site',
                             'urgent' => 'Urgent',
-                            'open_for_fresh_graduates' => 'Open for Fresh Graduates',
+                            'open_for_fresh_graduates' => 'Fresh Grad',
                         ];
                         $types = [];
                         foreach($typeLabels as $key => $label){
@@ -169,55 +173,61 @@
                         }
                     @endphp
                     @foreach($types as $type)
-                        <span class="badge bg-info text-dark job-type-badge">{{ $type }}</span>
+                        <span class="badge bg-info text-dark me-1 mb-1" style="font-size:0.7rem;">{{ $type }}</span>
                     @endforeach
                 @endif
             </div>
 
             @if($job->job_image)
-                <img src="{{ asset('storage/' . $job->job_image) }}" class="img-fluid rounded shadow-sm mb-3" style="object-fit:cover; width:100%; max-height:400px;">
+                <img src="{{ asset('storage/' . $job->job_image) }}" class="img-fluid rounded shadow-sm mb-2" style="object-fit:cover; width:100%; max-height:250px;">
             @endif
         </div>
 
-        {{-- Like Button --}}
-        <form action="{{ route('agency.like', $job->id) }}" method="POST" class="d-inline">
-            @csrf
-            <button type="submit" class="btn btn-outline-primary btn-sm">
-                👍 Like ({{ $job->likes->count() }})
-            </button>
-        </form>
+        {{-- Actions: Like Button --}}
+        <div class="d-flex align-items-center mb-2">
+            <form class="d-inline like-form" data-job-id="{{ $job->id }}">
+                @csrf
+                <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center like-btn" style="gap: 0.3rem;">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span class="like-count">{{ $job->likes->count() }}</span>
+                </button>
+            </form>
+        </div>
 
         {{-- Comments & Recommendations --}}
-        <div class="mt-3">
-            <form action="{{ route('agency.comment', $job->id) }}" method="POST">
+        <div class="mt-2">
+            <form action="{{ route('agency.comment', $job->id) }}" method="POST" class="mb-2">
                 @csrf
-                <div class="input-group">
+                <div class="input-group input-group-sm">
                     <input type="text" name="content" class="form-control" placeholder="Write a comment..." required>
-                    <button class="btn btn-primary">Post</button>
+                    <button class="btn btn-primary btn-sm">Post</button>
                 </div>
             </form>
 
             @foreach ($job->recommendations->where('match_score', '>=', 30) as $rec)
-                <div class="p-3 border rounded mb-3 bg-light">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>{{ $rec->user->firstname ?? 'Unknown' }}</strong>
-                            <br>
-                            <button type="button" 
-                                    class="btn btn-link p-0 fw-semibold text-primary view-resume-btn" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#resumeModal" 
-                                    data-resume="{{ asset('storage/'.$rec->resume_path) }}?v={{ time() }}" 
-                                    data-name="{{ $rec->user->firstname ?? 'Unknown' }}">
-                                View Resume
-                            </button>
-                        </div>
+                <div class="d-flex justify-content-between align-items-center p-2 border rounded mb-2 bg-light">
+                    <div>
+                        <small class="text-muted">Hey,</small>
+                        <strong style="font-size:0.9rem;">{{ $rec->user->firstname ?? 'Unknown' }}</strong>
+                        <small class="text-muted">— a perfect match for this job!</small>
+                    </div>
 
-                        {{-- Message Button --}}
-                        <button class="btn btn-outline-primary btn-sm" 
+                    {{-- Actions: Resume + Message --}}
+                    <div class="d-flex gap-1">
+                        {{-- View Resume --}}
+                        <button type="button" class="btn btn-sm btn-primary p-1" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#resumeModal" 
+                                data-resume="{{ asset('storage/'.$rec->resume_path) }}?v={{ time() }}" 
+                                data-name="{{ $rec->user->firstname ?? 'Unknown' }}">
+                            <i class="fas fa-file-alt"></i>
+                        </button>
+
+                        {{-- Message --}}
+                        <button class="btn btn-outline-primary btn-sm p-1" 
                                 data-bs-toggle="modal" 
                                 data-bs-target="#messageModal{{ $rec->user_id }}">
-                            <i class="fas fa-envelope"></i> Message
+                            <i class="fas fa-envelope"></i>
                         </button>
                     </div>
                 </div>
@@ -227,7 +237,9 @@
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title" id="messageModalLabel{{ $rec->user_id }}">Send Message to {{ $rec->user->firstname }}</h5>
+                                <h5 class="modal-title" id="messageModalLabel{{ $rec->user_id }}">
+                                    Send Message to {{ $rec->user->firstname }}
+                                </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <form action="{{ route('agency.messages-store') }}" method="POST">
@@ -240,17 +252,24 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-success">Send</button>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-success btn-sm">Send</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             @endforeach
+            @foreach($job->comments as $comment)
+                <div class="p-2 border rounded mb-2 bg-white">
+                    <strong style="font-size:0.9rem;">{{ $comment->user->firstname ?? 'Unknown' }}</strong>
+                    <small class="text-muted">• {{ $comment->created_at->diffForHumans() }}</small>
+                    <div>{{ $comment->content }}</div>
+                </div>
+            @endforeach
         </div>
 
-    </div> <!-- card-body -->
+    </div>
 </div>
 
 {{-- Job Modal --}}
@@ -324,7 +343,6 @@
 
 @push('js')
 <script>
-    // Image preview for job create modal
     function previewImage(event) {
         const reader = new FileReader();
         reader.onload = function () {
@@ -335,7 +353,6 @@
         reader.readAsDataURL(event.target.files[0]);
     }
 
-    // Resume modal dynamic loading
     document.addEventListener('DOMContentLoaded', function () {
         const resumeModal = document.getElementById('resumeModal');
         const resumeFrame = document.getElementById('resumeFrame');
@@ -343,20 +360,21 @@
 
         resumeModal.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
-            const resumeUrl = button.getAttribute('data-resume') + '&v=' + new Date().getTime(); // force update
+            const resumeUrl = button.getAttribute('data-resume') + '&v=' + new Date().getTime(); 
             const userName = button.getAttribute('data-name');
             resumeFrame.src = resumeUrl;
             resumeModalLabel.textContent = `Resume - ${userName}`;
         });
 
         resumeModal.addEventListener('hidden.bs.modal', function () {
-            resumeFrame.src = ''; // clear iframe
+            resumeFrame.src = ''; 
         });
     });
 </script>
 @endpush
 
 @section('css')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
 .job-type-badge {
     border-radius: 50px;
@@ -376,5 +394,33 @@
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('.like-btn').click(function(e) {
+        e.preventDefault(); 
+        var btn = $(this);
+        var form = btn.closest('.like-form');
+        var jobId = form.data('job-id');
+        var token = form.find('input[name="_token"]').val();
+
+        $.ajax({
+            url: '/agency/like/' + jobId,
+            type: 'POST',
+            data: {_token: token},
+            success: function(response) {
+                btn.find('.like-count').text(response.likes_count);
+                if(response.liked){
+                    btn.removeClass('btn-outline-primary').addClass('btn-primary');
+                } else {
+                    btn.removeClass('btn-primary').addClass('btn-outline-primary');
+                }
+            },
+            error: function(xhr){
+                alert('Something went wrong!');
+            }
+        });
+    });
+});
+</script>
 @stop

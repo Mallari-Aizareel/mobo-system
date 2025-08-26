@@ -27,6 +27,8 @@ use App\Http\Controllers\Tesda\TesdaMessageController;
 use App\Http\Controllers\Admin\AdminMessageController;
 use App\Http\Controllers\Tesda\TesdaNotificationController;
 use App\Http\Controllers\Agency\AgencyFeedbackController;
+use App\Http\Controllers\Agency\AgencyNotificationController;
+use App\Http\Controllers\Tesda\TesdaAgencyInteractionController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -180,10 +182,14 @@ Route::prefix('tesda')->name('tesda.')->middleware(['auth'])->group(function () 
     Route::delete('messages/{id}', [TesdaMessageController::class, 'destroy'])
         ->name('messages-destroy');
 
-    Route::get('notifications', [TesdaNotificationController::class, 'index'])
+    Route::get('/notifications', [TesdaNotificationController::class, 'index'])
         ->name('notifications');
-    Route::get('notifications/read/{id}', [TesdaNotificationController::class, 'markAsRead'])
-        ->name('notifications-read');
+
+    Route::post('/agency/{agency}/like', [TesdaAgencyInteractionController::class, 'like'])
+        ->name('agency.like');
+
+    Route::get('/agency/{agency}', [AgencyProfileController::class, 'showForTesda'])
+        ->name('agency.show');
 });
 
 
@@ -220,9 +226,10 @@ Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function (
         ->name('show');
 
     Route::post('/like/{id}', [JobInteractionController::class, 'like'])
-        ->name('like');
-    Route::post('/comment{id}', [JobInteractionController::class, 'comment'])
+        ->name('job.like');
+    Route::post('/comment/{id}', [JobInteractionController::class, 'comment'])
         ->name('comment');
+
     Route::delete('/comments/{id}', [JobPostController::class, 'deleteComment'])
         ->name('destroy');
     
@@ -231,14 +238,17 @@ Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function (
     Route::post('/messages', [MessageController::class, 'store'])
         ->name('messages-store');
     Route::put('/messages/{id}', [MessageController::class, 'update'])
-        ->name('messages-update'); // Update
+        ->name('messages-update');
     Route::delete('/messages/{id}', [MessageController::class, 'destroy'])
-        ->name('messages-destroy'); // Delete
+        ->name('messages-destroy'); 
 
     Route::post('/agency/{agency}/like', [AgencyFeedbackController::class, 'like'])
-    ->name('like');
+        ->name('agency.like');
     Route::post('/agency/{agency}/rate', [AgencyFeedbackController::class, 'rate'])
-    ->name('rate');
+        ->name('rate');
+    
+    Route::get('/notifications', [AgencyNotificationController::class, 'index'])
+        ->name('notifications');
 
 
 });

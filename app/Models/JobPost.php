@@ -57,4 +57,7 @@ class JobPost extends Model
         }
         return asset('images/default-job.png'); // fallback if no image
     }
+
+
+    
 }

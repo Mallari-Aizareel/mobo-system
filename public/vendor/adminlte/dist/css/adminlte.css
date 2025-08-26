@@ -10776,6 +10776,7 @@ body:not(.layout-fixed).layout-navbar-fixed.text-sm .wrapper .main-sidebar .side
 .layout-navbar-fixed .wrapper .main-sidebar:hover .brand-link {
   transition: width 0.3s ease-in-out;
   width: 250px;
+  text-decoration: none !important;
 }
 
 .layout-navbar-fixed .wrapper .brand-link {
@@ -10785,6 +10786,7 @@ body:not(.layout-fixed).layout-navbar-fixed.text-sm .wrapper .main-sidebar .side
   transition: width 0.3s ease-in-out;
   width: 250px;
   z-index: 1035;
+  text-decoration: none !important;
 }
 
 .layout-navbar-fixed .wrapper .sidebar-dark-primary .brand-link:not([class*="navbar"]) {
@@ -11804,6 +11806,7 @@ body:not(.layout-fixed) .main-sidebar .sidebar {
 
 .layout-fixed .brand-link {
   width: 250px;
+  text-decoration: none !important;
 }
 
 .layout-fixed .main-sidebar {

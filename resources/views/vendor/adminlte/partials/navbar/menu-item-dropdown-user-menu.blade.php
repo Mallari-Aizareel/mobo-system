@@ -71,9 +71,6 @@
  {{-- User menu dropdown --}}
 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
 
-
-
-
     <li class="user-footer text-center">
         <a href="{{ $profileRoute }}" class="btn btn-default btn-flat d-block w-100 mb-1">
             <i class="fa fa-user text-primary"></i> {{ $profileLabel }}

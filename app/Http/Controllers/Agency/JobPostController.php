@@ -20,7 +20,7 @@ class JobPostController extends Controller
 
        $jobPosts = JobPost::with(['recommendations' => function($q) {
                 $q->where('match_score', '>=', 30);
-            }, 'jobType', 'agency'])
+            }, 'jobType', 'agency', 'comments.user'])
             ->when($search, function ($query, $search) {
                 $query->where('job_position', 'like', "%{$search}%")
                     ->orWhere('job_description', 'like', "%{$search}%");
@@ -91,14 +91,16 @@ class JobPostController extends Controller
     }
 
 
-    public function manage()
+    public function manage(Request $request)
     {
         $jobPosts = JobPost::with('jobType', 'agency')
             ->where('agency_id', Auth::id())
             ->latest()
             ->paginate(10); 
 
-        return view('agency.manage-posts', compact('jobPosts'));
+        $editJobId = $request->query('edit_job'); 
+
+        return view('agency.manage-posts', compact('jobPosts', 'editJobId'));
     }
 
     public function edit($id)

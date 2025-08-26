@@ -10,6 +10,11 @@
     .main-header .navbar-nav .user-panel {
         color: white !important;
     }
+    .brand-link {
+        text-decoration: none !important;
+    }
+
+
 </style>
 
 <nav class="main-header navbar

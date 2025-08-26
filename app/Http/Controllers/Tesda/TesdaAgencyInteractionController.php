@@ -1,19 +1,23 @@
 <?php
 
-namespace App\Http\Controllers\Agency;
+namespace App\Http\Controllers\Tesda;
 
 use App\Http\Controllers\Controller;
 use App\Models\Like;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\JobPost;
 
-class JobInteractionController extends Controller
+class TesdaAgencyInteractionController extends Controller
 {
-public function like($jobPostId)
+    // Like/unlike a job post
+    public function like($jobPostId)
 {
+    $jobPost = JobPost::findOrFail($jobPostId); // Will throw 404 if not found
+
     $like = Like::where('user_id', Auth::id())
-                ->where('job_post_id', $jobPostId)
+                ->where('job_post_id', $jobPost->id)
                 ->first();
 
     if ($like) {
@@ -22,13 +26,12 @@ public function like($jobPostId)
     } else {
         Like::create([
             'user_id' => Auth::id(),
-            'job_post_id' => $jobPostId,
+            'job_post_id' => $jobPost->id,
         ]);
         $liked = true;
     }
 
-    // Get updated like count
-    $likesCount = Like::where('job_post_id', $jobPostId)->count();
+    $likesCount = Like::where('job_post_id', $jobPost->id)->count();
 
     return response()->json([
         'likes_count' => $likesCount,
@@ -36,6 +39,7 @@ public function like($jobPostId)
     ]);
 }
 
+    // Add a comment
     public function comment(Request $request, $jobPostId)
     {
         $request->validate([

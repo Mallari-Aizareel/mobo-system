@@ -12,14 +12,14 @@
     <i class="fas fa-ellipsis-h fa-lg"></i>
 </button>
 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationsFilter">
-    <li><a class="dropdown-item" href="{{ route('tesda.notifications') }}">All</a></li>
+    <li><a class="dropdown-item" href="{{ route('agency.notifications') }}">All</a></li>
 
-    <a class="dropdown-item" href="{{ route('tesda.notifications', ['filter' => 'new']) }}">New</a>
-    <li><a class="dropdown-item" href="{{ route('tesda.notifications', ['filter' => 'yesterday']) }}">Yesterday</a></li>
+    <li><a class="dropdown-item" href="{{ route('agency.notifications', ['filter' => 'new']) }}">New</a></li>
+    <li><a class="dropdown-item" href="{{ route('agency.notifications', ['filter' => 'yesterday']) }}">Yesterday</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="{{ route('tesda.notifications', ['filter' => '1_week']) }}">Last 1 week</a></li>
-    <li><a class="dropdown-item" href="{{ route('tesda.notifications', ['filter' => '2_weeks']) }}">Last 2 weeks</a></li>
-    <li><a class="dropdown-item" href="{{ route('tesda.notifications', ['filter' => '1_month']) }}">Last 1 month</a></li>
+    <li><a class="dropdown-item" href="{{ route('agency.notifications', ['filter' => '1_week']) }}">Last 1 week</a></li>
+    <li><a class="dropdown-item" href="{{ route('agency.notifications', ['filter' => '2_weeks']) }}">Last 2 weeks</a></li>
+    <li><a class="dropdown-item" href="{{ route('agency.notifications', ['filter' => '1_month']) }}">Last 1 month</a></li>
 </ul>
 
     </div>

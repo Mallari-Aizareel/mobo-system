@@ -21,7 +21,7 @@
                     : 'https://ui-avatars.com/api/?name=' . urlencode($job->agency->name ?? 'Agency') }}" 
                     alt="Agency" class="rounded-circle me-3 shadow" style="width:50px; height:50px; object-fit:cover; border:2px solid #0d6efd;">
                 <div>
-                    <a href="{{ route('agency.show', $job->agency_id) }}">
+                    <a href="{{ route('tesda.agency.show', $job->agency_id) }}">
                         {{ $job->agency->firstname ?? 'Unknown Agency' }}
                     </a>
 
@@ -88,13 +88,15 @@
         </div>
 
 
-                          {{-- Like Button --}}
-<form action="{{ route('agency.like', $job->id) }}" method="POST" class="d-inline">
-    @csrf
-    <button type="submit" class="btn btn-outline-primary btn-sm">
-        👍 Like ({{ $job->likes->count() }})
-    </button>
-</form>
+<div class="d-flex align-items-center mb-2">
+    <form class="d-inline like-form" data-job-id="{{ $job->id }}">
+        @csrf
+        <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center like-btn" style="gap: 0.3rem;">
+            <i class="fas fa-thumbs-up"></i>
+            <span class="like-count">{{ $job->likes->count() }}</span>
+        </button>
+    </form>
+</div>
 
 {{-- Comments Section --}}
 <div class="mt-3">
@@ -292,5 +294,32 @@
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+$(document).ready(function() {
+    $('.like-btn').click(function(e) {
+        e.preventDefault(); 
+        var btn = $(this);
+        var form = btn.closest('.like-form');
+        var jobId = form.data('job-id');
+        var token = form.find('input[name="_token"]').val();
 
+        $.ajax({
+            url: '/agency/like/' + jobId, // Reuse agency route
+            type: 'POST',
+            data: {_token: token},
+            success: function(response) {
+                btn.find('.like-count').text(response.likes_count);
+                if(response.liked){
+                    btn.removeClass('btn-outline-primary').addClass('btn-primary');
+                } else {
+                    btn.removeClass('btn-primary').addClass('btn-outline-primary');
+                }
+            },
+            error: function(xhr){
+                alert('Something went wrong!');
+            }
+        });
+    });
+});
+</script>
 @stop

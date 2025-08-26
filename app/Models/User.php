@@ -146,4 +146,11 @@ public function isLikedByUser($userId)
                 ->exists();
 }
 
+
+public function jobPosts()
+{
+    return $this->hasMany(JobPost::class, 'agency_id'); // agency_id in job_posts table
+}
+
+
 }

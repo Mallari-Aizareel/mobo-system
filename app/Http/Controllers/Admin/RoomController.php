@@ -29,7 +29,8 @@ class RoomController extends Controller
             'room_name' => 'nullable|string',
             'course_id' => 'required|exists:courses,id',
             'training_center_id' => 'required|exists:training_centers,id',
-            'trainee_id' => 'required|exists:users,id',
+            'trainee_ids' => 'required|array',
+            'trainee_ids.*' => 'exists:users,id',
         ]);
 
         if ($request->room_option === 'new') {
@@ -42,16 +43,17 @@ class RoomController extends Controller
             $room = Room::findOrFail($request->room_option);
         }
 
-        $currentTraineesCount = EnrolledTrainee::where('room_id', $room->id)->count();
+        foreach ($request->trainee_ids as $traineeId) {
+            $currentTraineesCount = EnrolledTrainee::where('room_id', $room->id)->count();
+            if ($currentTraineesCount >= 30) {
+                return back()->withErrors(['trainee_ids' => 'This room already has 30 trainees, which is the maximum allowed.']);
+            }
 
-        if ($currentTraineesCount >= 30) {
-            return back()->withErrors(['trainee_id' => 'This room already has 30 trainees, which is the maximum allowed.']);
+            EnrolledTrainee::updateOrCreate(
+                ['user_id' => $traineeId],
+                ['room_id' => $room->id]
+            );
         }
-
-        EnrolledTrainee::updateOrCreate(
-            ['user_id' => $request->trainee_id],
-            ['room_id' => $room->id]
-        );
 
         return back()->with('success', 'Room and trainee saved successfully!');
     }

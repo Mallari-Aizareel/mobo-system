@@ -87,43 +87,43 @@
                     </div>
                 @endif
 
-{{-- Like / Comments Row --}}
-<div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
-    <div class="d-flex align-items-center text-primary fw-semibold" style="cursor:pointer;">
-        <i class="fas fa-thumbs-up me-2"></i> 
-        {{ $job->likes->count() }} Likes
-    </div>
-    <div class="text-secondary fw-semibold" style="cursor:pointer;" data-toggle="collapse" data-target="#comments-{{ $job->id }}">
-        {{ $job->comments->count() }} Comments
-    </div>
-</div>
-
-{{-- Comment Section --}}
-<div class="collapse mt-3" id="comments-{{ $job->id }}">
-    <div class="p-3 border rounded bg-light">
-        <strong>Comments:</strong>
-        <ul class="list-group mt-2">
-            @forelse($job->comments as $comment)
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>{{ $comment->user->name ?? 'Anonymous' }}</strong><br>
-                        {{ $comment->content }}
-                        <br><small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                {{-- Like / Comments Row --}}
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                    <div class="d-flex align-items-center text-primary fw-semibold" style="cursor:pointer;">
+                        <i class="fas fa-thumbs-up me-2"></i> 
+                        {{ $job->likes->count() }} Likes
                     </div>
-                    <form action="{{ route('agency.destroy', $comment->id) }}" method="POST" onsubmit="return confirm('Delete this comment?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                    </form>
-                </li>
-            @empty
-                <li class="list-group-item text-muted">No comments yet.</li>
-            @endforelse
-        </ul>
-    </div>
-</div>
-            </div>
-        </div>
+                    <div class="text-secondary fw-semibold" style="cursor:pointer;" data-toggle="collapse" data-target="#comments-{{ $job->id }}">
+                        {{ $job->comments->count() }} Comments
+                    </div>
+                </div>
+
+                {{-- Comment Section --}}
+                <div class="collapse mt-3" id="comments-{{ $job->id }}">
+                    <div class="p-3 border rounded bg-light">
+                        <strong>Comments:</strong>
+                        <ul class="list-group mt-2">
+                            @forelse($job->comments as $comment)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ $comment->user->name ?? 'Anonymous' }}</strong><br>
+                                        {{ $comment->content }}
+                                        <br><small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                                    </div>
+                                    <form action="{{ route('agency.destroy', $comment->id) }}" method="POST" onsubmit="return confirm('Delete this comment?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </li>
+                            @empty
+                                <li class="list-group-item text-muted">No comments yet.</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+                    </div>
+                </div>
 
         <!-- Edit Modal -->
         <div class="modal fade" id="editJobModal{{ $job->id }}" tabindex="-1" role="dialog" aria-labelledby="editJobModalLabel{{ $job->id }}" aria-hidden="true">
@@ -222,8 +222,8 @@
             </div>
         </div>
 
-    @empty
-        <div class="alert alert-info">No job posts found. Start by creating a new job post!</div>
+        @empty
+            <div class="alert alert-info">No job posts found. Start by creating a new job post!</div>
     @endforelse
 
     {{-- Pagination --}}
@@ -244,6 +244,14 @@ function previewEditImage(event, jobId) {
     reader.readAsDataURL(event.target.files[0]);
 }
 </script>
-@endpush
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        @if(isset($editJobId))
+            var editModal = new bootstrap.Modal(document.getElementById('editJobModal{{ $editJobId }}'));
+            editModal.show();
+        @endif
+    });
+</script>
+@endpush
 @stop

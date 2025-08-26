@@ -72,10 +72,11 @@
 <div class="card">
     <div class="card-body">
         <div class="profile-header">
-            <img src="{{ $user->background_picture 
-                ? asset('storage/' . $user->background_picture) 
-                : asset('storage/background_picture/default.jpg') }}" 
-                class="profile-bg" alt="Background Image">
+<img src="{{ $user->background_picture
+            ? asset('storage/' . $user->background_picture)
+            : asset('storage/background_pictures/default.jpg') }}"
+     class="profile-bg" alt="Background Image">
+
 
 
             <img src="{{ Auth::user()->profile_picture ? asset('storage/' . Auth::user()->profile_picture) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->firstname.' '.Auth::user()->lastname) }}" 

@@ -81,10 +81,10 @@
         <div class="card mb-4">
             <div class="card-body p-0">
                 <div class="profile-header">
-                    <img src="{{ $user->background_picture 
-                        ? asset('storage/' . $user->background_picture) 
-                        : asset('storage/background_picture/default.jpg') }}" 
-                        class="profile-bg" alt="Background Image">
+  <img src="{{ $user->background_picture
+            ? asset('storage/' . $user->background_picture)
+            : asset('storage/background_pictures/default.jpg') }}"
+     class="profile-bg" alt="Background Image">
 
 <input type="file" name="background_picture" accept="image/*" hidden id="background_picture_input">
 

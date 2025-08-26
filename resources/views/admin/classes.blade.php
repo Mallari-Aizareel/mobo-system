@@ -42,15 +42,15 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="enrolled_trainee_id"><strong>Trainee</strong></label>
-                    <select name="trainee_id" id="enrolled_trainee_id" class="form-control" required>
-                        <option value="">-- Select Trainee --</option>
+                    <label for="enrolled_trainee_id"><strong>Trainees</strong></label>
+                    <select name="trainee_ids[]" id="enrolled_trainee_id" class="form-control" multiple required>
                         @foreach($trainees as $trainee)
                             <option value="{{ $trainee->user_id }}" data-course="{{ $trainee->course_id }}">
                                 {{ $trainee->user->firstname }} {{ $trainee->user->lastname }}
                             </option>
                         @endforeach
                     </select>
+                    <small class="text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple trainees.</small>
                 </div>
 
                 <div class="form-group">

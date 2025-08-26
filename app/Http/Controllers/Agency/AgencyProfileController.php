@@ -8,14 +8,49 @@ use App\Models\User;
 use App\Models\AgencyRepresentative;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\JobPost;
 
 class AgencyProfileController extends Controller
 {
     public function index()
     {
         $agency = Auth::user()->load('address');
-        return view('agency.profile', compact('agency'));
+
+        $jobPosts = JobPost::with(['jobType', 'agency', 'likes', 'comments.user'])
+            ->where('agency_id', $agency->id)
+            ->latest()
+            ->paginate(10);
+
+        return view('agency.profile', compact('agency', 'jobPosts'));
     }
+
+
+public function showForTesda($agencyId)
+{
+    // Fetch the user with role 'agency'
+    $agency = User::where('id', $agencyId)->where('role_id', '3')->firstOrFail();
+
+    // Fetch all their job posts for TESDA view
+    $jobPosts = JobPost::with(['jobType', 'likes', 'comments.user'])
+                        ->where('agency_id', $agency->id)
+                        ->latest()
+                        ->get();
+
+    return view('agency.profile', compact('agency', 'jobPosts'));
+}
+
+
+
+    // public function showProfilePosts($agencyId)
+    // {
+    //     $jobPosts = JobPost::with('jobType', 'agency')
+    //         ->where('agency_id', $agencyId)
+    //         ->latest()
+    //         ->paginate(10);
+
+    //     return view('agency.profile', compact('jobPosts'));
+    // }
+
 
     public function edit()
     {
@@ -92,12 +127,19 @@ public function show($id)
 {
     $agency = User::findOrFail($id);
 
+    // Fetch all job posts for this agency
+    $jobPosts = JobPost::with(['jobType', 'likes', 'comments.user'])
+                       ->where('agency_id', $agency->id)
+                       ->latest()
+                       ->get();
+
     $averageRating = $agency->average_rating;
     $myRating = $agency->myRating();
     $likesCount = $agency->likes_count;
 
-    return view('agency.profile', compact('agency', 'averageRating', 'myRating', 'likesCount'));
+    return view('agency.profile', compact('agency', 'jobPosts', 'averageRating', 'myRating', 'likesCount'));
 }
+
 
     
 

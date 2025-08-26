@@ -1,22 +1,25 @@
 <?php
 
-namespace App\Http\Controllers\Tesda;
+namespace App\Http\Controllers\Agency;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\JobRecommendation;
 use App\Models\JobPost;
 
-class TesdaNotificationController extends Controller
+class AgencyNotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $userId = auth()->id();
-        $filter = $request->query('filter');
+        $userAgencyId = Auth::id();
+        $filter = $request->query('filter'); // Get filter from query string
 
-        // AI recommendations for this Tesda user
-        $recommendations = JobRecommendation::with('jobPost.agency')
-            ->where('user_id', $userId)
+        // Recommendations for your job posts
+        $recommendations = JobRecommendation::with(['user', 'jobPost'])
+            ->whereHas('jobPost', function($q) use ($userAgencyId) {
+                $q->where('agency_id', $userAgencyId);
+            })
             ->when($filter, function($q) use ($filter) {
                 if ($filter === 'new') {
                     $q->whereDate('created_at', now());
@@ -34,14 +37,15 @@ class TesdaNotificationController extends Controller
             ->map(function($rec) {
                 return [
                     'type' => 'recommendation',
-                    'icon' => 'fas fa-robot text-info',
-                    'text' => 'Recommended you for <strong>'.$rec->jobPost->job_position.'</strong> from '.$rec->jobPost->agency->name,
+                    'icon' => 'fas fa-robot text-primary',
+                    'text' => ($rec->user->firstname ?? 'Unknown') . ' is recommended for your post: ' . ($rec->jobPost->job_position ?? 'Unknown Position'),
                     'created_at' => $rec->created_at,
                 ];
             });
 
-        // Agency posts
-        $jobPosts = JobPost::with('agency')
+        // New job posts from other agencies
+        $newPosts = JobPost::with('agency')
+            ->where('agency_id', '<>', $userAgencyId)
             ->when($filter, function($q) use ($filter) {
                 if ($filter === 'new') {
                     $q->whereDate('created_at', now());
@@ -59,15 +63,15 @@ class TesdaNotificationController extends Controller
             ->map(function($post) {
                 return [
                     'type' => 'new_post',
-                    'icon' => 'fas fa-bell text-primary',
-                    'text' => 'New post from <strong>'.$post->agency->name.'</strong>: '.$post->job_position,
+                    'icon' => 'fas fa-briefcase text-success',
+                    'text' => ($post->agency->name ?? 'Unknown Agency') . ' added a new post: ' . ($post->job_position ?? 'Unknown Position'),
                     'created_at' => $post->created_at,
                 ];
             });
 
-        // Merge and sort
-        $notifications = $recommendations->merge($jobPosts)->sortByDesc('created_at');
+        // Merge recommendations and new posts, sort by latest
+        $notifications = $recommendations->merge($newPosts)->sortByDesc('created_at');
 
-        return view('tesda.notifications', compact('notifications', 'filter'));
+        return view('agency.notifications', compact('notifications', 'filter'));
     }
 }
