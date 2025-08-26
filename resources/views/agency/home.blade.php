@@ -194,80 +194,94 @@
             </form>
         </div>
 
-        {{-- Comments & Recommendations --}}
-        <div class="mt-2">
-            <form action="{{ route('agency.comment', $job->id) }}" method="POST" class="mb-2">
-                @csrf
-                <div class="input-group input-group-sm">
-                    <input type="text" name="content" class="form-control" placeholder="Write a comment..." required>
-                    <button class="btn btn-primary btn-sm">Post</button>
-                </div>
-            </form>
-
-            @foreach ($job->recommendations->where('match_score', '>=', 30) as $rec)
-                <div class="d-flex justify-content-between align-items-center p-2 border rounded mb-2 bg-light">
-                    <div>
-                        <small class="text-muted">Hey,</small>
-                        <strong style="font-size:0.9rem;">{{ $rec->user->firstname ?? 'Unknown' }}</strong>
-                        <small class="text-muted">— a perfect match for this job!</small>
-                    </div>
-
-                    {{-- Actions: Resume + Message --}}
-                    <div class="d-flex gap-1">
-                        {{-- View Resume --}}
-                        <button type="button" class="btn btn-sm btn-primary p-1" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#resumeModal" 
-                                data-resume="{{ asset('storage/'.$rec->resume_path) }}?v={{ time() }}" 
-                                data-name="{{ $rec->user->firstname ?? 'Unknown' }}">
-                            <i class="fas fa-file-alt"></i>
-                        </button>
-
-                        {{-- Message --}}
-                        <button class="btn btn-outline-primary btn-sm p-1" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#messageModal{{ $rec->user_id }}">
-                            <i class="fas fa-envelope"></i>
-                        </button>
-                    </div>
-                </div>
-
-                {{-- Inbox Modal --}}
-                <div class="modal fade" id="messageModal{{ $rec->user_id }}" tabindex="-1" aria-labelledby="messageModalLabel{{ $rec->user_id }}" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title" id="messageModalLabel{{ $rec->user_id }}">
-                                    Send Message to {{ $rec->user->firstname }}
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <form action="{{ route('agency.messages-store') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="receiver_id" value="{{ $rec->user_id }}">
-                                <div class="modal-body">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold">Message</label>
-                                        <textarea name="message" class="form-control" rows="4" placeholder="Write your message..." required></textarea>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-success btn-sm">Send</button>
-                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-            @foreach($job->comments as $comment)
-                <div class="p-2 border rounded mb-2 bg-white">
-                    <strong style="font-size:0.9rem;">{{ $comment->user->firstname ?? 'Unknown' }}</strong>
-                    <small class="text-muted">• {{ $comment->created_at->diffForHumans() }}</small>
-                    <div>{{ $comment->content }}</div>
-                </div>
-            @endforeach
+{{-- Comments & Recommendations --}}
+<div class="mt-2">
+    <form action="{{ route('agency.comment', $job->id) }}" method="POST" class="mb-2">
+        @csrf
+        <div class="input-group input-group-sm">
+            <input type="text" name="content" class="form-control" placeholder="Write a comment..." required>
+            <button class="btn btn-primary btn-sm">Post</button>
         </div>
+    </form>
+
+    {{-- Show resumes matched at least 30% --}}
+    @php
+        $matchedResumes = $job->recommendations->where('match_score', '>=', 30);
+    @endphp
+
+    @if($matchedResumes->isNotEmpty())
+        <h6 class="fw-bold text-primary mb-2">Matched Resumes (≥30%)</h6>
+        @foreach ($matchedResumes as $rec)
+            <div class="d-flex justify-content-between align-items-center p-2 border rounded mb-2 bg-light">
+                <div>
+                    <strong style="font-size:0.9rem;">{{ $rec->user->firstname ?? 'Unknown' }}</strong>
+                    <span class="badge bg-success ms-2">{{ $rec->match_score }}%</span>
+                    <br>
+                    <small class="text-muted">Matched for this job</small>
+                </div>
+
+                {{-- Actions --}}
+                <div class="d-flex gap-1">
+                    {{-- View Resume --}}
+                    <button type="button" class="btn btn-sm btn-primary p-1" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#resumeModal" 
+                            data-resume="{{ asset('storage/'.$rec->resume_path) }}?v={{ time() }}" 
+                            data-name="{{ $rec->user->firstname ?? 'Unknown' }}">
+                        <i class="fas fa-file-alt"></i>
+                    </button>
+
+                    {{-- Message --}}
+                    <button class="btn btn-outline-primary btn-sm p-1" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#messageModal{{ $rec->user_id }}">
+                        <i class="fas fa-envelope"></i>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Message Modal --}}
+            <div class="modal fade" id="messageModal{{ $rec->user_id }}" tabindex="-1" aria-labelledby="messageModalLabel{{ $rec->user_id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title" id="messageModalLabel{{ $rec->user_id }}">
+                                Send Message to {{ $rec->user->firstname }}
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="{{ route('agency.messages-store') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="receiver_id" value="{{ $rec->user_id }}">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Message</label>
+                                    <textarea name="message" class="form-control" rows="4" placeholder="Write your message..." required></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success btn-sm">Send</button>
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    @else
+        <p class="text-muted">No resumes matched 30% or higher for this job.</p>
+    @endif
+
+    {{-- Comments --}}
+    @foreach($job->comments as $comment)
+        <div class="p-2 border rounded mb-2 bg-white">
+            <strong style="font-size:0.9rem;">{{ $comment->user->firstname ?? 'Unknown' }}</strong>
+            <small class="text-muted">• {{ $comment->created_at->diffForHumans() }}</small>
+            <div>{{ $comment->content }}</div>
+        </div>
+    @endforeach
+</div>
+
 
     </div>
 </div>
