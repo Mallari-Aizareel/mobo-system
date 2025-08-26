@@ -43,7 +43,6 @@ class AgencyNotificationController extends Controller
                 ];
             });
 
-        // New job posts from other agencies
         $newPosts = JobPost::with('agency')
             ->where('agency_id', '<>', $userAgencyId)
             ->when($filter, function($q) use ($filter) {

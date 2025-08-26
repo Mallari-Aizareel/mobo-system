@@ -190,11 +190,10 @@ class JobPostController extends Controller
 protected function runResumeMatching(JobPost $jobPost)
 {
     $job = $jobPost;
-    $resumes = \App\Models\Resume::all(); // fetch all user resumes
+    $resumes = \App\Models\Resume::all();
 
     foreach ($resumes as $resume) {
         try {
-            // 1️⃣ Submit resume to Sharp API
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . config('services.sharpapi.key'),
             ])->attach(
@@ -215,13 +214,12 @@ protected function runResumeMatching(JobPost $jobPost)
                 'response' => $result,
             ]);
 
-            // 2️⃣ Save recommendation as pending
             $recommendation = \App\Models\JobRecommendation::create([
                 'job_post_id' => $job->id,
                 'user_id' => $resume->user_id,
                 'resume_path' => $resume->pdf_path,
-                'match_score' => 0, // initial 0
-                'status_url' => $result['status_url'] ?? null, // for polling
+                'match_score' => 0, 
+                'status_url' => $result['status_url'] ?? null, 
             ]);
 
             Log::info('Saved pending recommendation', [
@@ -247,7 +245,6 @@ protected function runResumeMatching(JobPost $jobPost)
         'total_resumes' => $resumes->count(),
     ]);
 
-    // 3️⃣ Poll pending recommendations and update match_score
     $pending = \App\Models\JobRecommendation::where('match_score', 0)
         ->whereNotNull('status_url')
         ->get();
@@ -263,7 +260,6 @@ protected function runResumeMatching(JobPost $jobPost)
 
             if (isset($statusData['data']['attributes']['status']) && $statusData['data']['attributes']['status'] === 'success') {
                 
-                // Double decode: API returns JSON string inside JSON
                 $resultJson = $statusData['data']['attributes']['result'] ?? '{}';
                 $resultData = json_decode($resultJson, true);
 
@@ -298,6 +294,4 @@ protected function runResumeMatching(JobPost $jobPost)
 
     return back()->with('success', 'Resumes submitted and pending matches are being processed.');
 }
-
-
 }

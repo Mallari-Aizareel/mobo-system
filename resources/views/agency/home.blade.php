@@ -210,13 +210,10 @@
     @endphp
 
     @if($matchedResumes->isNotEmpty())
-        <h6 class="fw-bold text-primary mb-2">Matched Resumes (≥30%)</h6>
         @foreach ($matchedResumes as $rec)
             <div class="d-flex justify-content-between align-items-center p-2 border rounded mb-2 bg-light">
                 <div>
                     <strong style="font-size:0.9rem;">{{ $rec->user->firstname ?? 'Unknown' }}</strong>
-                    <span class="badge bg-success ms-2">{{ $rec->match_score }}%</span>
-                    <br>
                     <small class="text-muted">Matched for this job</small>
                 </div>
 
@@ -269,7 +266,7 @@
             </div>
         @endforeach
     @else
-        <p class="text-muted">No resumes matched 30% or higher for this job.</p>
+        <p class="text-muted"></p>
     @endif
 
     {{-- Comments --}}
