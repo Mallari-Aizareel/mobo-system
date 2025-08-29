@@ -211,6 +211,11 @@ Route::prefix('tesda')->name('tesda.')->middleware(['auth'])->group(function () 
 
     Route::get('/answers/{answer}/download', [ModuleAnswerController::class, 'download'])
         ->name('answers.download');
+
+    Route::post('/mute/{agency}', [TesdaHomeController::class, 'toggleMute'])
+        ->name('mute');
+    Route::post('/ignore/{agency}', [TesdaHomeController::class, 'toggleIgnore'])
+        ->name('ignore');
 });
 
 
@@ -271,5 +276,8 @@ Route::prefix('agency')->name('agency.')->middleware(['auth'])->group(function (
     Route::get('/notifications', [AgencyNotificationController::class, 'index'])
         ->name('notifications');
 
-
+    Route::post('/mute/{agency}', [JobPostController::class, 'mute'])
+        ->name('mute');
+    Route::post('/ignore/{agency}', [JobPostController::class, 'ignore'])
+        ->name('ignore');
 });

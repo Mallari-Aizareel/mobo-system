@@ -159,4 +159,48 @@ public function completedCourses()
                 ->with('course'); 
 }
 
+
+// app/Models/User.php
+
+public function mutedUsers()
+{
+    return $this->belongsToMany(
+        User::class,
+        'muted_agencies',
+        'user_id',   // the one who does the muting
+        'agency_id'  // the one being muted
+    );
+}
+
+public function ignoredUsers()
+{
+    return $this->belongsToMany(
+        User::class,
+        'ignored_agency_notifications',
+        'user_id',   // the one who ignores
+        'agency_id'  // the one being ignored
+    );
+}
+
+// Reverse: who muted/ignored me?
+public function mutedBy()
+{
+    return $this->belongsToMany(
+        User::class,
+        'muted_agencies',
+        'agency_id', // this user is the muted one
+        'user_id'    // this user did the muting
+    );
+}
+
+public function ignoredBy()
+{
+    return $this->belongsToMany(
+        User::class,
+        'ignored_agency_notifications',
+        'agency_id', // this user is ignored
+        'user_id'    // this user ignored me
+    );
+}
+
 }

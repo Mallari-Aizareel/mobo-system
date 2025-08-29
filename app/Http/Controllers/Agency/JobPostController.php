@@ -11,6 +11,8 @@ use App\Models\Resume;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\MutedAgency;
+use App\Models\IgnoredAgencyNotification;
 
 class JobPostController extends Controller
 {
@@ -18,21 +20,45 @@ class JobPostController extends Controller
     {
         $search = $request->input('search');
 
-       $jobPosts = JobPost::with(['recommendations' => function($q) {
+        $mutedAgencyIds = MutedAgency::where('user_id', Auth::id())->pluck('agency_id');
+
+        $jobPosts = JobPost::with(['recommendations' => function($q) {
                 $q->where('match_score', '>=', 30);
             }, 'jobType', 'agency', 'comments.user'])
             ->when($search, function ($query, $search) {
                 $query->where('job_position', 'like', "%{$search}%")
                     ->orWhere('job_description', 'like', "%{$search}%");
             })
+            ->whereNotIn('agency_id', $mutedAgencyIds) 
             ->latest()
             ->get();
-
 
         $jobTypes = JobType::all();
 
         return view('agency.home', compact('jobPosts', 'jobTypes', 'search'));
     }
+
+
+    public function mute($agencyId)
+    {
+        MutedAgency::firstOrCreate([
+            'user_id' => Auth::id(),
+            'agency_id' => $agencyId,
+        ]);
+
+        return back()->with('success', 'Agency muted successfully.');
+    }
+
+    public function ignore($agencyId)
+    {
+        IgnoredAgencyNotification::firstOrCreate([
+            'user_id' => Auth::id(),
+            'agency_id' => $agencyId,
+        ]);
+
+        return back()->with('success', 'Notifications ignored from this agency.');
+    }
+
 
     public function store(Request $request)
     {

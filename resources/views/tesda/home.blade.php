@@ -45,9 +45,17 @@
                 <button type="submit" class="dropdown-item text-danger">Delete Post</button>
             </form>
         @else
-            <a class="dropdown-item" href="#">Mute this Agency</a>
-            <a class="dropdown-item" href="#">Ignore notifications from this Agency</a>
+            <form action="{{ route('tesda.mute', $job->agency_id) }}" method="POST">
+                @csrf
+                <button type="submit" class="dropdown-item">Mute this Agency</button>
+            </form>
+
+            <form action="{{ route('tesda.ignore', $job->agency_id) }}" method="POST">
+                @csrf
+                <button type="submit" class="dropdown-item">Ignore notifications from this Agency</button>
+            </form>
         @endif
+
     </div>
 </div>
 

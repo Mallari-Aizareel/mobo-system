@@ -131,7 +131,6 @@
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="optionsMenu{{ $job->id }}">
                     @if(Auth::id() === $job->agency_id)
-                        {{-- Redirect to Manage Posts with query param job_id --}}
                         <a class="dropdown-item" href="{{ route('agency.manage-posts', ['edit_job' => $job->id]) }}">
                             Edit Post
                         </a>
@@ -142,8 +141,15 @@
                             <button type="submit" class="dropdown-item text-danger">Delete Post</button>
                         </form>
                     @else
-                        <a class="dropdown-item" href="#">Mute this Agency</a>
-                        <a class="dropdown-item" href="#">Ignore notifications from this Agency</a>
+                        <form action="{{ route('agency.mute', $job->agency_id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item">Mute this Agency</button>
+                        </form>
+
+                        <form action="{{ route('agency.ignore', $job->agency_id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item">Ignore notifications from this Agency</button>
+                        </form>
                     @endif
                 </div>
             </div>
