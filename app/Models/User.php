@@ -149,8 +149,14 @@ public function isLikedByUser($userId)
 
 public function jobPosts()
 {
-    return $this->hasMany(JobPost::class, 'agency_id'); // agency_id in job_posts table
+    return $this->hasMany(JobPost::class, 'agency_id'); 
 }
 
+public function completedCourses()
+{
+    return $this->hasMany(EnrolledTrainee::class, 'user_id') 
+                ->where('status_id', 2) 
+                ->with('course'); 
+}
 
 }

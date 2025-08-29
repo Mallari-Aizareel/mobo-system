@@ -19,6 +19,7 @@
                         <th>Representative Name</th>
                         <th>Representative Phone</th>
                         <th>Representative Email</th>
+                        <th>Date of Registration</th> <!-- added -->
                     </tr>
                 </thead>
                 <tbody>
@@ -33,32 +34,31 @@
                             <td>{{ $agency->email }}</td>
                             <td>{{ $agency->phone_number }}</td>
                          
-                           <td>
-        @forelse ($agency->agencyRepresentatives as $rep)
-            {{ $rep->first_name }} {{ $rep->last_name }}<br>
-        @empty
-            N/A
-        @endforelse
-    </td>
+                            <td>
+                                @forelse ($agency->agencyRepresentatives as $rep)
+                                    {{ $rep->first_name }} {{ $rep->last_name }}<br>
+                                @empty
+                                    N/A
+                                @endforelse
+                            </td>
 
-    <td>
-        @forelse ($agency->agencyRepresentatives as $rep)
-            {{ $rep->address?->street ?? 'No address' }}<br>
-            {{ $rep->address?->barangay ?? '' }}<br>
-            {{ $rep->address?->city ?? '' }}<br>
-        @empty
-            N/A
-        @endforelse
-    </td>
+                            <td>
+                                @forelse ($agency->agencyRepresentatives as $rep)
+                                    {{ $rep->phone_number }}<br>
+                                @empty
+                                    N/A
+                                @endforelse
+                            </td>
 
-    <td>
-        @forelse ($agency->agencyRepresentatives as $rep)
-            {{ $rep->phone_number }}<br>
-        @empty
-            N/A
-        @endforelse
-    </td>
+                            <td>
+                                @forelse ($agency->agencyRepresentatives as $rep)
+                                    {{ $rep->email }}<br>
+                                @empty
+                                    N/A
+                                @endforelse
+                            </td>
 
+                            <td>{{ $agency->created_at->format('F d, Y') }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -69,15 +69,21 @@
 
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
 @stop
 
 @section('js')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
     <script>
         $(function () {
-            $('#agenciesTable').DataTable();
+            $('#agenciesTable').DataTable({
+                responsive: true,
+                autoWidth: false
+            });
         });
     </script>
 @stop

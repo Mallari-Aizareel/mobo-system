@@ -8,6 +8,8 @@ use App\Models\EnrolledTrainee;
 use App\Models\Course;
 use App\Models\TrainingCenter;
 use Illuminate\Http\Request;
+use App\Models\RoomModule;
+use Illuminate\Support\Facades\Storage;
 
 class RoomController extends Controller
 {
@@ -68,12 +70,50 @@ class RoomController extends Controller
 
     public function show($id)
     {
-        $room = Room::with(['course', 'trainingCenter'])->findOrFail($id);
+        $room = Room::with(['course', 'trainingCenter', 'modules.answers.user'])->findOrFail($id);
 
         $trainees = EnrolledTrainee::with(['user', 'course'])
             ->where('room_id', $room->id)
             ->get();
 
         return view('admin.room-info', compact('room', 'trainees'));
-    } 
+    }
+
+
+    public function storeModule(Request $request, $roomId)
+    {
+        $request->validate([
+            'module_file' => 'required|file|mimes:doc,docx,pdf,ppt,pptx,jpg,png,xls,xlsx,csv|max:10240',
+        ]);
+
+        $room = Room::findOrFail($roomId);
+
+        $file = $request->file('module_file');
+        $originalName = $file->getClientOriginalName();
+
+        $path = $file->storeAs('modules', $originalName, 'public');
+
+        RoomModule::create([
+            'room_id' => $room->id,
+            'module_path' => $path,
+        ]);
+
+        return back()->with('success', 'Module uploaded successfully!');
+    }
+
+    public function destroy($roomId, $moduleId)
+    {
+        $room = Room::findOrFail($roomId);
+        $module = RoomModule::where('room_id', $room->id)->findOrFail($moduleId);
+
+        if (Storage::exists($module->module_path)) {
+            Storage::delete($module->module_path);
+        }
+
+        $module->delete();
+
+        return back()->with('success', 'Module deleted successfully!');
+    }
+
+    
 }

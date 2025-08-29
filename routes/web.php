@@ -29,6 +29,7 @@ use App\Http\Controllers\Tesda\TesdaNotificationController;
 use App\Http\Controllers\Agency\AgencyFeedbackController;
 use App\Http\Controllers\Agency\AgencyNotificationController;
 use App\Http\Controllers\Tesda\TesdaAgencyInteractionController;
+use App\Http\Controllers\Tesda\ModuleAnswerController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -125,6 +126,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('messages', [AdminMessageController::class, 'store'])
         ->name('messages-store');
 
+    Route::post('/rooms/{room}/modules', [RoomController::class, 'storeModule'])
+        ->name('rooms.modules.store');
+
+    Route::delete('/rooms/{room}/modules/{module}', [RoomController::class, 'destroy'])
+        ->name('rooms.modules.destroy');
+
+    Route::get('/answers/{answer}/download', [ModuleAnswerController::class, 'download'])
+        ->name('answers.download');
 
 });
 
@@ -190,6 +199,18 @@ Route::prefix('tesda')->name('tesda.')->middleware(['auth'])->group(function () 
 
     Route::get('/agency/{agency}', [AgencyProfileController::class, 'showForTesda'])
         ->name('agency.show');
+
+    Route::post('/modules/download', [TesdaDashboardController::class, 'downloadSelected'])
+        ->name('modules.downloadSelected');
+
+    Route::get('/modules/{id}/download', [TesdaDashboardController::class, 'downloadModule'])
+        ->name('modules.downloadSingle');
+
+    Route::post('/modules/{module}/answers', [ModuleAnswerController::class, 'store'])
+    ->name('answers.store');
+
+    Route::get('/answers/{answer}/download', [ModuleAnswerController::class, 'download'])
+        ->name('answers.download');
 });
 
 

@@ -3,7 +3,7 @@
 @section('title', 'TESDA Dashboard')
 
 @section('content_header')
-    <h1>Dashboard</h1>
+    <h1>My Rooms</h1>
 @endsection
 
 @section('content')
@@ -18,12 +18,12 @@
             </div>
         </div>
     </div>
-
+<!-- 
     <div class="row mb-3">
         <div class="col-12">
             <h4>Enrolled Courses</h4>
         </div>
-    </div>
+    </div> -->
 
     {{-- Enrolled Courses Grid --}}
     <div class="row" id="coursesGrid">

@@ -25,12 +25,16 @@ class AdminEnrolledTraineeController extends Controller
 
     public function updateStatus(Request $request, EnrolledTrainee $trainee)
     {
+        $statusFailed = Status::where('name', 'failed')->value('id');
+
         $request->validate([
             'status_id' => 'required|exists:statuses,id',
+            'reason' => 'nullable|string', 
         ]);
 
         $trainee->update([
             'status_id' => $request->status_id,
+            'reason' => $request->status_id == $statusFailed ? $request->reason : null,
         ]);
 
         return redirect()->back()->with('success', 'Status updated successfully.');

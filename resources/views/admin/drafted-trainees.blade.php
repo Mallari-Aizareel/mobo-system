@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Drafted Trainees')
+@section('title', 'Dropped Trainees')
 
 @section('content_header')
-    <h1>Drafted Trainees</h1>
+    <h1>Dropped Trainees</h1>
 @stop
 
 @section('content')
@@ -20,6 +20,7 @@
                         <th>Enrolled Course</th>
                         <th>Valid ID</th>
                         <th>Certificate</th>
+                        <th>Reason for Dropping</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,6 +51,7 @@
                             <td>
                                 <a href="{{ asset('storage/' . $trainee->certificate) }}" target="_blank">View</a>
                             </td>
+                            <td>{{ $trainee->reason ?? 'N/A' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -60,15 +62,21 @@
 
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
 @stop
 
 @section('js')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
     <script>
         $(function () {
-            $('#traineesTable').DataTable();
+            $('#traineesTable').DataTable({
+                responsive: true,
+                autoWidth: false
+            });
         });
     </script>
 @stop

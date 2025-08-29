@@ -81,7 +81,7 @@ class AppServiceProvider extends ServiceProvider
             'icon' => 'fas fa-school',
         ],
         [
-            'text' => 'Drafted',
+            'text' => 'Dropped Trainees',
             'url'  => 'admin/drafted-trainees',
             'icon' => 'fas fa-file-alt',
         ],
@@ -94,7 +94,7 @@ class AppServiceProvider extends ServiceProvider
             } elseif ($user->role_id == 2) { // TESDA
                $menu = [
                 ['text' => 'Home', 'url' => 'tesda/home', 'icon' => 'fas fa-home'],
-                ['text' => 'Dashboard', 'url' => 'tesda/dashboard', 'icon' => 'fas fa-tachometer-alt'],
+                ['text' => 'Rooms', 'url' => 'tesda/dashboard', 'icon' => 'fas fa-tachometer-alt'],
                 ['text' => 'Notifications', 'url' => 'tesda/notifications', 'icon' => 'fas fa-bell'],
                 ['text' => 'Inbox', 'url' => 'tesda/Inboxes', 'icon' => 'fas fa-inbox'],
                 ['text' => 'Enroll Courses', 'url' => 'tesda/enroll-courses', 'icon' => 'fas fa-book-open'],

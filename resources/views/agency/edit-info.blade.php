@@ -3,7 +3,7 @@
 @section('title', 'Edit Agency Info')
 
 @section('content_header')
-    <h4><i class="fas fa-edit"></i> EDIT AGENCY INFO</h4>
+    <h4></h4>
 @stop
 
 @section('content')
@@ -80,7 +80,7 @@
     }
 
     .section {
-        border-bottom: 2px solid black;
+       
         padding-bottom: 15px;
         margin-bottom: 20px;
         background: white;
@@ -154,7 +154,7 @@
 
             {{-- Agency Name --}}
             <div class="agency-name">
-                {{ $user->name ?? 'AGENCY NAME' }}
+                {{ $user->firstname ?? 'AGENCY NAME' }}
             </div>
 
             @if(session('success'))
@@ -165,11 +165,8 @@
             <div class="section">
                 <div class="section-title"><i class="fas fa-info-circle"></i> Agency Info</div>
 
-                <label>First Name</label>
+                <label>Agency Name</label>
                 <input type="text" name="firstname" class="form-control mb-3" value="{{ old('firstname', $user->firstname) }}" required>
-
-                <label>Last Name</label>
-                <input type="text" name="lastname" class="form-control mb-3" value="{{ old('lastname', $user->lastname) }}" required>
 
                 <label>Contact No.</label>
                 <input type="text" name="phone_number" class="form-control mb-3" value="{{ old('phone_number', $user->phone_number) }}" required>
@@ -249,7 +246,6 @@ function previewImage(event, previewId) {
     }
 }
 
-// Optional: Show selected profile picture file name
 document.getElementById('profile_picture_input').addEventListener('change', function(e) {
     const fileNameDisplay = document.getElementById('file_name_display');
     if (this.files.length > 0) {

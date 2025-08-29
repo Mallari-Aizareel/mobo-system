@@ -20,6 +20,7 @@
                         <th>Enrolled Course</th>
                         <th>Valid ID</th>
                         <th>Certificate</th>
+                        <th>Date of Enrollment</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -51,6 +52,7 @@
                             <td>
                                 <a href="{{ asset('storage/' . $trainee->certificate) }}" target="_blank">View</a>
                             </td>
+                           <td>{{ $trainee->created_at->format('F d, Y') }}</td>
                             <td class="text-center">
                                 <form action="{{ route('admin.trainees.status', ['trainee' => $trainee->id]) }}" method="POST" style="display: inline;">
                                     @csrf
@@ -61,14 +63,10 @@
                                     </button>
                                 </form>
 
-                                <form action="{{ route('admin.trainees.status', ['trainee' => $trainee->id]) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status_id" value="{{ $statusFailed }}">
-                                    <button type="submit" class="btn btn-danger btn-sm" title="Mark as Failed">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </form>
+                                <button type="button" class="btn btn-danger btn-sm" title="Mark as Failed" 
+                                    onclick="openDropModal({{ $trainee->id }})">
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </td>
                         </tr>
                     @endforeach
@@ -76,20 +74,62 @@
             </table>
         </div>
     </div>
+
+    <div class="modal fade" id="dropReasonModal" tabindex="-1" aria-labelledby="dropReasonModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="dropReasonForm" method="POST">
+            @csrf
+            @method('PATCH')
+            <input type="hidden" name="status_id" value="{{ $statusFailed }}">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="dropReasonModalLabel">Reason for Dropping Trainee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                <div class="form-group">
+                    <label for="reason">Reason</label>
+                    <textarea name="reason" id="reason" class="form-control" rows="4" required></textarea>
+                </div>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-danger">Drop Trainee</button>
+                </div>
+            </div>
+            </form>
+        </div>
+    </div>
+
 @stop
 
 
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
 @stop
 
 @section('js')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
+
     <script>
         $(function () {
-            $('#traineesTable').DataTable();
+            $('#traineesTable').DataTable({
+                responsive: true,
+                autoWidth: false
+            });
         });
+
+        function openDropModal(traineeId) {
+            const form = document.getElementById('dropReasonForm');
+            form.action = `/admin/trainees/${traineeId}/status`;
+
+            const dropModal = new bootstrap.Modal(document.getElementById('dropReasonModal'));
+            dropModal.show();
+        }
     </script>
 @stop
