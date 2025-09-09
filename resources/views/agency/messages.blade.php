@@ -15,21 +15,19 @@
                 Contacts
             </div>
             <ul class="list-group list-group-flush">
-                @php
-                    // Separate admin from other contacts
-                    $adminContact = $contacts->firstWhere('role_name', 'admin');
-                    $otherContacts = $contacts->reject(fn($u) => $u->role_name === 'admin');
-                @endphp
+              @php
+    $adminContacts = $contacts->filter(fn($u) => $u->role_name === 'admin');
+    $otherContacts = $contacts->reject(fn($u) => $u->role_name === 'admin');
+@endphp
 
                 {{-- Admin --}}
-                @if($adminContact)
-                    <a href="{{ route('agency.messages-index', ['user_id' => $adminContact->id]) }}"
-                       class="list-group-item list-group-item-action {{ ($selectedUserId == $adminContact->id) ? 'active' : '' }}">
-                        {{ $adminContact->firstname }} <br>
-                        <small class="text-muted">{{ ucfirst($adminContact->role_name) }}</small>
-                    </a>
-                @endif
-
+                @foreach($adminContacts as $admin)
+    <a href="{{ route('agency.messages-index', ['user_id' => $admin->id]) }}"
+       class="list-group-item list-group-item-action {{ ($selectedUserId == $admin->id) ? 'active' : '' }}">
+        {{ $admin->firstname }} <br>
+        <small class="text-muted">{{ ucfirst($admin->role_name) }}</small>
+    </a>
+@endforeach
                 {{-- Other contacts --}}
                 @foreach($otherContacts as $contact)
                     <a href="{{ route('agency.messages-index', ['user_id' => $contact->id]) }}"

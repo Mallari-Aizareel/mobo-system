@@ -13,40 +13,45 @@ class MessageController extends Controller
     /**
      * Display the messages page.
      */
-    public function index(Request $request)
-    {
-        $authId = Auth::id();
-        $selectedUserId = $request->get('user_id');
+public function index(Request $request)
+{
+    $authId = Auth::id();
+    $selectedUserId = $request->get('user_id');
 
-        // Get IDs of users the logged-in user has messages with
-        $contactIds = Message::where('sender_id', $authId)
-                        ->orWhere('receiver_id', $authId)
-                        ->get(['sender_id','receiver_id'])
-                        ->flatMap(function ($msg) use ($authId) {
-                            return $msg->sender_id == $authId ? [$msg->receiver_id] : [$msg->sender_id];
-                        })
-                        ->unique()
-                        ->toArray();
+    // 1️⃣ Get IDs of users the logged-in user has messages with
+    $contactIds = Message::where('sender_id', $authId)
+                    ->orWhere('receiver_id', $authId)
+                    ->get(['sender_id', 'receiver_id'])
+                    ->flatMap(function ($msg) use ($authId) {
+                        return $msg->sender_id == $authId
+                            ? [$msg->receiver_id]
+                            : [$msg->sender_id];
+                    })
+                    ->unique()
+                    ->toArray();
 
-        // Always include admin (assuming role name = 'admin')
-        $admin = User::whereHas('role', fn($q) => $q->where('name', 'admin'))->first();
-        if ($admin) {
-            $contactIds[] = $admin->id;
-        }
+    // 2️⃣ Include all admins (role_id = 1)
+    $adminIds = User::where('role_id', 1)->pluck('id')->toArray();
 
-        // Fetch contacts
-        $contacts = User::with('role')
-            ->whereIn('id', $contactIds)
-            ->get()
-            ->map(function($user) {
-                $user->role_name = $user->role ? $user->role->name : 'User';
-                return $user;
-            });
+    // Merge and remove duplicates
+    $contactIds = array_unique(array_merge($adminIds, $contactIds));
 
-        // Fetch messages if a contact is selected
-        $messages = [];
-        if ($selectedUserId) {
-            $messages = Message::where(function ($query) use ($authId, $selectedUserId) {
+    // 3️⃣ Fetch contacts with role info
+    $contacts = User::with('role')
+        ->whereIn('id', $contactIds)
+        ->get()
+        ->map(function($user) {
+            $user->role_name = $user->role ? $user->role->name : 'User';
+            return $user;
+        })
+        // Optional: sort so admins appear first
+        ->sortByDesc(fn($u) => $u->role_id == 1)
+        ->values(); // reindex collection
+
+    // 4️⃣ Fetch messages if a contact is selected
+    $messages = [];
+    if ($selectedUserId) {
+        $messages = Message::where(function ($query) use ($authId, $selectedUserId) {
                     $query->where('sender_id', $authId)->where('receiver_id', $selectedUserId);
                 })
                 ->orWhere(function ($query) use ($authId, $selectedUserId) {
@@ -54,10 +59,10 @@ class MessageController extends Controller
                 })
                 ->orderBy('created_at', 'asc')
                 ->get();
-        }
-
-        return view('agency.messages', compact('contacts', 'messages', 'selectedUserId'));
     }
+
+    return view('agency.messages', compact('contacts', 'messages', 'selectedUserId'));
+}
 
     /**
      * Store a new message.

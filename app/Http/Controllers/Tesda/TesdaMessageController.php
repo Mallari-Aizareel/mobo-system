@@ -18,23 +18,25 @@ class TesdaMessageController extends Controller
         $selectedUserId = $request->input('user_id');
         $authId = Auth::id();
 
-        // Get IDs of users the logged-in user has messages with
+        // 1️⃣ Get IDs of users the logged-in user has messages with
         $contactIds = Message::where('sender_id', $authId)
                         ->orWhere('receiver_id', $authId)
                         ->get(['sender_id', 'receiver_id'])
                         ->flatMap(function ($msg) use ($authId) {
-                            return $msg->sender_id == $authId ? [$msg->receiver_id] : [$msg->sender_id];
+                            return $msg->sender_id == $authId
+                                ? [$msg->receiver_id]
+                                : [$msg->sender_id];
                         })
                         ->unique()
                         ->toArray();
 
-        // Include admin by default (assuming role_id = 1)
-        $admin = User::where('role_id', 1)->first();
-        if ($admin) {
-            $contactIds[] = $admin->id;
-        }
+        // 2️⃣ Include all admins (role_id = 1)
+        $adminIds = User::where('role_id', 1)->pluck('id')->toArray();
 
-        // Fetch contacts
+        // Merge and remove duplicates
+        $contactIds = array_unique(array_merge($contactIds, $adminIds));
+
+        // 3️⃣ Fetch contacts
         $contacts = User::with('role')
             ->whereIn('id', $contactIds)
             ->get()
@@ -43,16 +45,16 @@ class TesdaMessageController extends Controller
                 return $user;
             });
 
-        // Fetch messages with selected user
+        // 4️⃣ Fetch messages with selected user
         $messages = [];
         if ($selectedUserId) {
             $messages = Message::where(function ($query) use ($selectedUserId, $authId) {
                     $query->where('sender_id', $authId)
-                          ->where('receiver_id', $selectedUserId);
+                        ->where('receiver_id', $selectedUserId);
                 })
                 ->orWhere(function ($query) use ($selectedUserId, $authId) {
                     $query->where('sender_id', $selectedUserId)
-                          ->where('receiver_id', $authId);
+                        ->where('receiver_id', $authId);
                 })
                 ->orderBy('created_at', 'asc')
                 ->get();
@@ -60,6 +62,7 @@ class TesdaMessageController extends Controller
 
         return view('tesda.Inboxes', compact('contacts', 'selectedUserId', 'messages'));
     }
+
 
     /**
      * Store a new message
