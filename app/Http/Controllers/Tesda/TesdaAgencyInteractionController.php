@@ -8,6 +8,7 @@ use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\JobPost;
+use App\Models\AgencyFeedback;
 
 class TesdaAgencyInteractionController extends Controller
 {
@@ -54,4 +55,19 @@ class TesdaAgencyInteractionController extends Controller
 
         return back()->with('success', 'Comment added successfully!');
     }
+
+
+public function likeAgency($agencyId)
+{
+    $feedback = AgencyFeedback::firstOrNew([
+        'agency_id' => $agencyId,
+        'user_id'   => auth()->id(),
+    ]);
+
+    $feedback->liked = !$feedback->liked;
+    $feedback->save();
+
+    return back();
+}
+
 }

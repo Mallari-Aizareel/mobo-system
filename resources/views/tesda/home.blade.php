@@ -108,6 +108,7 @@
 
 {{-- Comments Section --}}
 <div class="mt-3">
+    {{-- Comment Form --}}
     <form action="{{ route('agency.comment', $job->id) }}" method="POST">
         @csrf
         <div class="input-group">
@@ -116,33 +117,85 @@
         </div>
     </form>
 
-    <div class="mt-2">
-        @php
-            $recommendations = $job->recommendations->where('match_score', '>=', 30);
-        @endphp
+    @php
+        $recommendations = $job->recommendations->where('match_score', '>=', 30);
+    @endphp
 
-        @if($recommendations->count())
-            @foreach ($recommendations as $rec)
-                <div class="p-3 border rounded mb-3 bg-light">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="mt-2">
-                            <strong>{{ $rec->user->firstname ?? 'Unknown' }}</strong>
-                            <br>
-                            <!-- Button triggers modal -->
-                            <button type="button" class="btn btn-link p-0 fw-semibold view-resume-btn" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#resumeModal" 
-                                    data-resume="{{ asset('storage/'.$rec->resume_path) }}?v={{ time() }}"
-                                    data-name="{{ $rec->user->firstname ?? 'Unknown' }}">
-                                View Resume
-                            </button>
+    {{-- Toggle Button for Comments (includes recommended resumes) --}}
+    <button class="btn btn-outline-secondary btn-sm mt-3"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#comments-{{ $job->id }}">
+        View Comments & Recommendations ({{ $job->comments->count() + $recommendations->count() }})
+    </button>
+
+    {{-- Hidden Comments + Recommendations Section --}}
+    <div class="collapse mt-3" id="comments-{{ $job->id }}">
+        <div class="p-3 border rounded bg-light">
+
+            {{-- Recommended Resumes --}}
+            @if($recommendations->count())
+                <strong>Recommended Resumes:</strong>
+                @foreach ($recommendations as $rec)
+                    <div class="p-2 border rounded mb-2 bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ $rec->user->firstname ?? 'Unknown' }}</strong>
+                                <br>
+                                <button type="button"
+                                        class="btn btn-link p-0 fw-semibold view-resume-btn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#resumeModal"
+                                        data-resume="{{ asset('storage/'.$rec->resume_path) }}?v={{ time() }}"
+                                        data-name="{{ $rec->user->firstname ?? 'Unknown' }}">
+                                    View Resume
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
-        @else
-            <p class="text-muted">No recommendations with match score ≥ 30.</p>
-        @endif
+                @endforeach
+            @else
+                <p class="text-muted">No recommendations with match score ≥ 30.</p>
+            @endif
+
+            {{-- Comments --}}
+            <strong>Comments:</strong>
+            <ul class="list-group mt-2">
+                @forelse($job->comments as $comment)
+                    <li class="list-group-item">
+                        <div>
+                            <strong>{{ $comment->user->firstname ?? 'Unknown' }}</strong><br>
+                            {{ $comment->content }}
+                            <br>
+                            <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                        </div>
+                    </li>
+                @empty
+                    <li class="list-group-item text-muted">No comments yet.</li>
+                @endforelse
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Resume Modal remains the same -->
+<div class="modal fade" id="resumeModal" tabindex="-1" aria-labelledby="resumeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resumeModalLabel">Resume</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0" style="height: 80vh;">
+                <iframe id="resumeFrame"
+                        src=""
+                        width="100%"
+                        height="100%"
+                        frameborder="0"
+                        style="border:0;">
+                </iframe>
+            </div>
+        </div>
     </div>
 </div>
 

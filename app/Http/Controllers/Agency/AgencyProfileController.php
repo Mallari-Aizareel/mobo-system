@@ -127,7 +127,6 @@ public function show($id)
 {
     $agency = User::findOrFail($id);
 
-    // Fetch all job posts for this agency
     $jobPosts = JobPost::with(['jobType', 'likes', 'comments.user'])
                        ->where('agency_id', $agency->id)
                        ->latest()

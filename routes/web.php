@@ -197,6 +197,9 @@ Route::prefix('tesda')->name('tesda.')->middleware(['auth'])->group(function () 
     Route::post('/agency/{agency}/like', [TesdaAgencyInteractionController::class, 'like'])
         ->name('agency.like');
 
+    Route::post('/agency/{agency}/like', [TesdaAgencyInteractionController::class, 'likeAgency'])
+        ->name('agency.like');
+        
     Route::get('/agency/{agency}', [AgencyProfileController::class, 'showForTesda'])
         ->name('agency.show');
 
