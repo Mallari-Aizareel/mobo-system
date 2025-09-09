@@ -64,10 +64,11 @@ public function likeAgency($agencyId)
         'user_id'   => auth()->id(),
     ]);
 
+    // Toggle the like
     $feedback->liked = !$feedback->liked;
     $feedback->save();
 
-    return back();
+    return back(); // reloads the page and updates the thumbs + count
 }
 
 }
