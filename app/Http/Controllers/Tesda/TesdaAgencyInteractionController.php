@@ -40,21 +40,27 @@ class TesdaAgencyInteractionController extends Controller
     ]);
 }
 
-    // Add a comment
-    public function comment(Request $request, $jobPostId)
-    {
-        $request->validate([
-            'content' => 'required|string|max:500'
-        ]);
+public function comment(Request $request, $jobPostId)
+{
+    $request->validate([
+        'content' => 'required|string|max:500'
+    ]);
 
-        Comment::create([
-            'user_id' => Auth::id(),
-            'job_post_id' => $jobPostId,
-            'content' => $request->input('content'),
-        ]);
+    $comment = Comment::create([
+        'user_id' => Auth::id(),
+        'job_post_id' => $jobPostId,
+        'content' => $request->input('content'),
+    ]);
 
-        return back()->with('success', 'Comment added successfully!');
-    }
+    // Return JSON so AJAX can update the UI
+    return response()->json([
+        'id' => $comment->id,
+        'content' => $comment->content,
+        'user_name' => $comment->user->firstname ?? 'Unknown',
+        'created_at' => $comment->created_at->diffForHumans(),
+    ]);
+}
+
 
 
 public function likeAgency($agencyId)

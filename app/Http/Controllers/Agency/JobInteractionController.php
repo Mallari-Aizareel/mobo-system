@@ -35,19 +35,25 @@ public function like($jobPostId)
         'liked' => $liked,
     ]);
 }
-
     public function comment(Request $request, $jobPostId)
     {
         $request->validate([
             'content' => 'required|string|max:500'
         ]);
 
-        Comment::create([
+        $comment = Comment::create([
             'user_id' => Auth::id(),
             'job_post_id' => $jobPostId,
             'content' => $request->input('content'),
         ]);
 
-        return back()->with('success', 'Comment added successfully!');
+        // Return JSON for AJAX
+        return response()->json([
+            'id' => $comment->id,
+            'content' => $comment->content,
+            'user_name' => Auth::user()->firstname ?? 'Unknown',
+            'created_at' => 'just now', // for immediate display
+        ]);
     }
+
 }

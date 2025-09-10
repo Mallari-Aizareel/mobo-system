@@ -109,7 +109,8 @@
 {{-- Comments Section --}}
 <div class="mt-3">
     {{-- Comment Form --}}
-    <form action="{{ route('agency.comment', $job->id) }}" method="POST">
+        <form action="{{ route('agency.comment', $job->id) }}" method="POST" class="mb-2 comment-form" data-job-id="{{ $job->id }}">
+
         @csrf
         <div class="input-group">
             <input type="text" name="content" class="form-control" placeholder="Write a comment..." required>
@@ -377,6 +378,49 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr){
+                alert('Something went wrong!');
+            }
+        });
+    });
+});
+
+$(document).ready(function() {
+    $('.comment-form').on('submit', function(e) {
+        e.preventDefault(); // stop page reload
+
+        var form = $(this);
+        var jobId = form.data('job-id');
+        var input = form.find('input[name="content"]');
+        var content = input.val();
+        var token = form.find('input[name="_token"]').val();
+
+        if (!content.trim()) return; // prevent empty comment
+
+        $.ajax({
+            url: '/agency/comment/' + jobId,
+            type: 'POST',
+            data: {
+                _token: token,
+                content: content
+            },
+            success: function(response) {
+                // Append new comment to list
+                var commentList = form.siblings('.comment-list-' + jobId);
+                if (commentList.length === 0) {
+                    // Create the list if it doesn't exist yet
+                    form.after('<ul class="list-group mt-2 comment-list-' + jobId + '"></ul>');
+                    commentList = form.siblings('.comment-list-' + jobId);
+                }
+                commentList.append(`
+                    <li class="list-group-item">
+                        <strong>${response.user_name}</strong>: ${response.content}
+                        <br>
+                        <small class="text-muted">${response.created_at}</small>
+                    </li>
+                `);
+                input.val(''); // clear input
+            },
+            error: function(xhr) {
                 alert('Something went wrong!');
             }
         });
