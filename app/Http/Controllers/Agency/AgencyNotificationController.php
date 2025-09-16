@@ -15,11 +15,12 @@ class AgencyNotificationController extends Controller
         $userAgencyId = Auth::id();
         $filter = $request->query('filter'); // Get filter from query string
 
-        // Recommendations for your job posts
         $recommendations = JobRecommendation::with(['user', 'jobPost'])
             ->whereHas('jobPost', function($q) use ($userAgencyId) {
                 $q->where('agency_id', $userAgencyId);
             })
+            ->whereNotNull('match_score')             
+            ->where('match_score', '>=', 60)           
             ->when($filter, function($q) use ($filter) {
                 if ($filter === 'new') {
                     $q->whereDate('created_at', now());
@@ -42,6 +43,7 @@ class AgencyNotificationController extends Controller
                     'created_at' => $rec->created_at,
                 ];
             });
+
 
         $newPosts = JobPost::with('agency')
             ->where('agency_id', '<>', $userAgencyId)
