@@ -17,6 +17,9 @@ class TesdaNotificationController extends Controller
         // AI recommendations for this Tesda user
         $recommendations = JobRecommendation::with('jobPost.agency')
             ->where('user_id', $userId)
+            ->whereNotNull('resume_path')      
+            ->whereNotNull('match_score')             
+            ->where('match_score', '>=', 60)   
             ->when($filter, function($q) use ($filter) {
                 if ($filter === 'new') {
                     $q->whereDate('created_at', now());

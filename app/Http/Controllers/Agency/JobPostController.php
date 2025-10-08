@@ -221,7 +221,7 @@ protected function runResumeMatching(JobPost $jobPost)
     foreach ($resumes as $resume) {
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . config('services.sharpapi.key'),
+                'Authorization' => 'Bearer ' . config('services.sharpapi.key', 'rmvAEQNg0l8eEFAbGczyWw2hmO941Z2NYiUuNFxi'),
             ])->attach(
                 'file',
                 file_get_contents(public_path('storage/' . ltrim($resume->pdf_path, '/'))),
@@ -278,7 +278,7 @@ protected function runResumeMatching(JobPost $jobPost)
     foreach ($pending as $rec) {
         try {
             $statusResponse = Http::withHeaders([
-                'Authorization' => 'Bearer ' . config('services.sharpapi.key'),
+                'Authorization' => 'Bearer ' . config('services.sharpapi.key', 'rmvAEQNg0l8eEFAbGczyWw2hmO941Z2NYiUuNFxi'),
             ])->get($rec->status_url);
 
             $statusData = $statusResponse->json();

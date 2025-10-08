@@ -35,9 +35,7 @@ return [
         ],
     ],
 
-'sharpapi' => [
-    'key' => env('SHARP_API_KEY'),
-],
-
-
+    'sharpapi' => [
+        'key' => env('SHARP_API_KEY', 'rmvAEQNg0l8eEFAbGczyWw2hmO941Z2NYiUuNFxi'),
+    ],
 ];

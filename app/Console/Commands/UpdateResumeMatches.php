@@ -34,7 +34,7 @@ class UpdateResumeMatches extends Command
 
         foreach ($pending as $rec) {
             $statusResponse = Http::withHeaders([
-                'Authorization' => 'Bearer ' . config('services.sharpapi.key'),
+                'Authorization' => 'Bearer ' . config('services.sharpapi.key', 'rmvAEQNg0l8eEFAbGczyWw2hmO941Z2NYiUuNFxi'),
             ])->get($rec->status_url);
 
             $statusData = $statusResponse->json();
