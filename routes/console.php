@@ -9,3 +9,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('resumes:update-matches')->everyFiveMinutes();
+
+Schedule::command('notify:expiring-certificates')->everyFiveMinutes();

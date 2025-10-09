@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+
     <div class="card">
         <div class="card-body">
             <table id="graduatesTable" class="table table-bordered table-hover">
@@ -26,6 +27,9 @@
                 </thead>
                 <tbody>
                     @foreach ($graduates as $grad)
+                    @php
+                        $cert = $grad->certificates->firstWhere('course_id', $grad->course_id);
+                    @endphp
                         <tr>
                             <td>
                                 <img src="{{ $grad->user->profile_picture ? asset('storage/' . $grad->user->profile_picture) : asset('default-profile.png') }}" 
@@ -48,10 +52,8 @@
                             <td>{{ $grad->course->name ?? 'N/A' }}</td>
                             <td>{{ $grad->created_at ? $grad->created_at->format('F d, Y') : '' }}</td>
                             <td>{{ $grad->updated_at ? $grad->updated_at->format('F d, Y') : '' }}</td>
-                            <td>{{ $grad->certificate_expiration ? \Carbon\Carbon::parse($grad->certificate_expiration)->format('F d, Y') : '' }}</td>
-                            <td>{{ $grad->remarks ?? '' }}</td>
-
-
+                            <td>{{ $cert?->expiration_date ? \Carbon\Carbon::parse($cert->expiration_date)->format('F d, Y') : 'N/A' }}</td>
+                            <td>{{ $cert?->remarks ? ucfirst($cert->remarks) : 'N/A' }}</td>
                         </tr>
                     @endforeach
                 </tbody>

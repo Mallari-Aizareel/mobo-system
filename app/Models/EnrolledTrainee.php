@@ -38,4 +38,10 @@ class EnrolledTrainee extends Model
     {
         return $this->belongsTo(Room::class);
     }
+
+    public function certificates()
+    {
+        return $this->hasMany(\App\Models\UserCertificate::class, 'user_id', 'user_id');
+    }
+
 }

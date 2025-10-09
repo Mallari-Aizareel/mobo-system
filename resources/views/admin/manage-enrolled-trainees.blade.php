@@ -58,9 +58,11 @@
                                     @csrf
                                     @method('PATCH')
                                     <input type="hidden" name="status_id" value="{{ $statusGraduated }}">
-                                    <button type="submit" class="btn btn-success btn-sm" title="Mark as Graduated">
+                                    <button type="button" class="btn btn-success btn-sm" title="Mark as Graduated" 
+                                        onclick="openCertificateModal({{ $trainee->id }})">
                                         <i class="fas fa-check"></i>
                                     </button>
+
                                 </form>
 
                                 <button type="button" class="btn btn-danger btn-sm" title="Mark as Failed" 
@@ -101,6 +103,50 @@
         </div>
     </div>
 
+    <!-- Example Bootstrap Modal -->
+    <div class="modal fade" id="certificateModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="POST" id="certificateForm">
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="status_id" value="{{ $statusGraduated }}">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">TESDA Certificate</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- <div class="mb-3">
+                            <label>NC Number</label>
+                            <input type="text" name="nc_number" class="form-control" required>
+                        </div> -->
+                        <div class="mb-3">
+                            <label>Issued Date</label>
+                            <input type="date" name="issued_date" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Expiration Date</label>
+                            <input type="date" name="expiration_date" class="form-control">
+                            <small class="text-muted">Optional</small>
+                        </div>
+                        <div class="mb-3">
+                            <label>Remarks</label>
+                            <select name="remarks" class="form-control" required>
+                                <option value="valid">Valid</option>
+                                <option value="expired">Expired</option>
+                                <option value="renewed">Renewed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Save Certificate</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
 @stop
 
 
@@ -131,5 +177,15 @@
             const dropModal = new bootstrap.Modal(document.getElementById('dropReasonModal'));
             dropModal.show();
         }
+
+        function openCertificateModal(traineeId) {
+            const form = document.getElementById('certificateForm');
+            form.action = `/admin/trainees/${traineeId}/status`; // same route as updateStatus
+            const certModal = new bootstrap.Modal(document.getElementById('certificateModal'));
+            certModal.show();
+        }
+
+
+
     </script>
 @stop

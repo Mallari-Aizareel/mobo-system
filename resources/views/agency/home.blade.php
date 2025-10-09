@@ -299,11 +299,49 @@
                             <br>
                             <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
                         </div>
+
+                        {{-- Message Button for Commenter --}}
+                        @if($comment->user) {{-- make sure user exists --}}
+                            <button class="btn btn-outline-primary btn-sm p-1"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#messageCommentModal{{ $comment->user_id }}">
+                                <i class="fas fa-envelope"></i>
+                            </button>
+
+                            {{-- Message Modal --}}
+                            <div class="modal fade" id="messageCommentModal{{ $comment->user_id }}" tabindex="-1" aria-labelledby="messageCommentModalLabel{{ $comment->user_id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title" id="messageCommentModalLabel{{ $comment->user_id }}">
+                                                Send Message to {{ $comment->user->firstname }}
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="{{ route('agency.messages-store') }}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="receiver_id" value="{{ $comment->user_id }}">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold">Message</label>
+                                                    <textarea name="message" class="form-control" rows="4" placeholder="Write your message..." required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-success btn-sm">Send</button>
+                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </li>
                 @empty
                     <li class="list-group-item text-muted">No comments yet.</li>
                 @endforelse
             </ul>
+
         </div>
     </div>
 </div>
