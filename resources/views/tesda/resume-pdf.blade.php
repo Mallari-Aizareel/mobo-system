@@ -1,131 +1,148 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>{{ $resume->first_name ?? 'N/A' }} {{ $resume->last_name ?? 'N/A' }} - Resume</title>
-<style>
-    html, body {
-        width: 210mm;
-        margin: 0;
-        padding: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 12px;
-        color: #333;
-    }
-
-    table { width: 100%; border-collapse: collapse; }
-    td { vertical-align: top; }
-
-    /* Sidebar */
-    .sidebar {
-        width: 30%;
-        padding: 20px;
-        background-color: #1f2937;
-        color: #fff;
-    }
-    .profile-name { font-size: 22px; font-weight: bold; margin-bottom: 5px; line-height: 1.2; }
-    .job-title { font-size: 13px; color: #9ca3af; margin-bottom: 20px; }
-    .section-title { font-size: 12px; text-transform: uppercase; margin: 20px 0 8px 0; font-weight: bold; border-bottom: 1px solid #fff; padding-bottom: 4px; }
-    .contact-item { font-size: 12px; margin-bottom: 6px; line-height: 1.4; }
-    .skill-item { display: inline-block; background-color: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 6px; margin: 2px 4px 4px 0; font-size: 12px; }
-
-    /* Main Content */
-    .main-content {
-        width: 70%;
-        padding: 20px;
-    }
-    .main-heading { font-size: 14px; font-weight: bold; margin-top: 20px; margin-bottom: 6px; border-bottom: 1px solid #ccc; padding-bottom: 3px; }
-    .timeline-item { margin-bottom: 14px; }
-    .timeline-item h3 { margin: 0; font-size: 13px; font-weight: bold; }
-    .timeline-item .subtitle { font-size: 12px; margin: 2px 0; color: #555; }
-    .timeline-item .date { font-size: 11px; color: #777; }
-    .timeline-item ul { margin: 4px 0 0 15px; padding: 0; }
-    .timeline-item ul li { font-size: 12px; margin-bottom: 3px; }
-
-    /* Print adjustment */
-    @media print { 
-        .sidebar { -webkit-print-color-adjust: exact; print-color-adjust: exact; } 
-    }
-</style>
+    <meta charset="utf-8">
+    <title>Resume - {{ $resume->first_name }} {{ $resume->last_name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            margin: 0.5in;
+            color: #222;
+        }
+        h1 {
+            font-size: 22pt;
+            margin-bottom: 6pt;
+            text-transform: uppercase;
+            color: #1a1a1a;
+        }
+        h2 {
+            font-size: 14.5pt;
+            margin-top: 14pt;
+            margin-bottom: 4pt;
+            color: #004080;
+            border-bottom: 1px solid #004080;
+            padding-bottom: 2pt;
+        }
+        h3 {
+            font-size: 12.5pt;
+            margin: 4pt 0;
+            color: #333;
+        }
+        p {
+            margin: 2pt 0;
+        }
+        ul {
+            margin: 3pt 0 6pt 20pt;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 2pt;
+        }
+        .highlight {
+            color: #004080;
+            font-weight: bold;
+        }
+        .italic {
+            font-style: italic;
+            color: #555;
+        }
+        .section-header {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-<table>
-<tr>
-    <!-- Sidebar -->
-    <td class="sidebar" style="vertical-align:top;">
-        <div class="profile-name">{{ $resume->first_name ?? '' }} {{ $resume->middle_name ?? '' }} {{ $resume->last_name ?? '' }}</div>
-        <div class="job-title">{{ $resume->job_title ?? 'N/A' }}</div>
+    <!-- Header -->
+    <div style="display:flex; align-items:center; margin-bottom: 12pt;">
+        @php
+            $profileImagePath = $user->profile_picture 
+                ? storage_path('app/public/' . $user->profile_picture) 
+                : storage_path('app/public/default-avatar.jpg'); // fallback local image
+        @endphp
 
-        <!-- Contact -->
-        <div class="section-title">Contact</div>
-        <div class="contact-item">TEL: {{ $resume->phone ?? 'N/A' }}</div>
-        <div class="contact-item">EMAIL: {{ $resume->email ?? 'N/A' }}</div>
-        <div class="contact-item">ADDR: {{ $resume->address ?? 'N/A' }}, {{ $resume->city ?? 'N/A' }}, {{ $resume->province ?? '' }}</div>
+        <div style="flex-shrink:0; margin-right:12pt;">
+            <img src="{{ $profileImagePath }}" 
+                alt="Profile Picture" 
+                style="width:100px; height:100px; object-fit:cover; border:1px solid #ccc;">
+        </div>
 
-        <!-- Skills -->
-        <div class="section-title">Skills</div>
-        @if($resume->parsed_skills)
-            @foreach(explode(',', $resume->parsed_skills) as $skill)
-                <div class="skill-item">{{ trim($skill) }}</div>
-            @endforeach
-        @elseif($resume->skills)
+        <div>
+            <h1 style="margin:0;">{{ $resume->first_name }} {{ $resume->last_name }}</h1>
+            @if(!empty($resume->summary))
+                <p class="italic" style="margin:4pt 0 0 0;">{{ $resume->summary }}</p>
+            @endif
+        </div>
+    </div>
+
+    <!-- Contact Info -->
+    <h2>Contact</h2>
+    <p><span class="highlight">Email:</span> {{ $resume->email }}</p>
+    <p><span class="highlight">Phone:</span> {{ $resume->phone }}</p>
+    <p><span class="highlight">Address:</span> {{ $resume->address }}, {{ $resume->city }}, {{ $resume->province }} {{ $resume->zip_code }}</p>
+
+    <!-- Experience -->
+    @if(!empty($resume->company_name))
+        <h2>Experience</h2>
+        <h3><span class="highlight">{{ $resume->job_title ?? '' }}</span> - <span class="italic">{{ $resume->company_name ?? '' }}</span></h3>
+        <p class="italic">{{ $resume->job_start_date ? date('M Y', strtotime($resume->job_start_date)) : '' }} - {{ $resume->job_end_date ? date('M Y', strtotime($resume->job_end_date)) : 'Present' }}</p>
+        @if(!empty($resume->job_description))
+            <ul>
+                @foreach(explode("\n", $resume->job_description) as $desc)
+                    @if(trim($desc) !== '')
+                        <li>{{ trim($desc) }}</li>
+                    @endif
+                @endforeach
+            </ul>
+        @endif
+    @endif
+
+    <!-- Education -->
+    <h2>Education</h2>
+    <h3><span class="highlight">{{ $resume->degree ?? '' }}</span> in <span class="italic">{{ $resume->field_of_study ?? '' }}</span></h3>
+    <p>{{ $resume->school_name ?? '' }} — {{ $resume->grad_year }}</p>
+
+    <!-- Certification -->
+    @if(!empty($resume->certification_name))
+        <h2>Certification</h2>
+        <h3><span class="highlight">{{ $resume->certification_name }}</span></h3>
+        <p class="italic">{{ $resume->certification_year }}</p>
+    @endif
+
+    <!-- Skills -->
+    @if(!empty($resume->skills))
+        <h2>Skills</h2>
+        <ul>
             @foreach(explode(',', $resume->skills) as $skill)
-                <div class="skill-item">{{ trim($skill) }}</div>
+                <li><span class="highlight">{{ trim($skill) }}</span></li>
             @endforeach
-        @else
-            <div class="skill-item">N/A</div>
-        @endif
-    </td>
+        </ul>
+    @endif
 
-    <!-- Main Content -->
-    <td class="main-content" style="vertical-align:top;">
-        <!-- Professional Summary -->
-        <div class="main-heading">Professional Summary</div>
-        <div>{{ $resume->summary ?? 'N/A' }}</div>
+    <!-- Additional Skills -->
+    @if(!empty($resume->parsed_skills))
+        <h2>Additional Skills</h2>
+        <ul>
+            @foreach(explode(',', $resume->parsed_skills) as $pskill)
+                <li><span class="highlight">{{ trim($pskill) }}</span></li>
+            @endforeach
+        </ul>
+    @endif
 
-        <!-- Work Experience -->
-        <div class="main-heading">Work Experience</div>
-        @if($resume->company_name)
-            <div class="timeline-item">
-                <h3>{{ $resume->company_name }}</h3>
-                <div class="subtitle">{{ $resume->job_title ?? 'N/A' }}</div>
-                <div class="date">{{ $resume->job_start_date ?? 'N/A' }} - {{ $resume->job_end_date ?? 'Present' }}</div>
-                @if($resume->job_description)
-                    <ul>
-                        @foreach(explode("\n", $resume->job_description) as $desc)
-                            <li>{{ $desc }}</li>
-                        @endforeach
-                    </ul>
-                @endif
-            </div>
-        @else
-            <p>N/A</p>
-        @endif
+    <!-- Courses -->
+    @if(!empty($resume->parsed_courses))
+        <h2>Courses</h2>
+        <ul>
+            @foreach(explode(',', $resume->parsed_courses) as $course)
+                <li><span class="italic">{{ trim($course) }}</span></li>
+            @endforeach
+        </ul>
+    @endif
 
-        <!-- Education -->
-        <div class="main-heading">Education</div>
-        @if($resume->school_name)
-            <div class="timeline-item">
-                <h3>{{ $resume->school_name }}</h3>
-                <div class="subtitle">{{ $resume->degree }} in {{ $resume->field_of_study }}</div>
-                <div class="date">{{ $resume->grad_year ?? 'N/A' }}</div>
-            </div>
-        @else
-            <p>N/A</p>
-        @endif
-
-        <!-- Certifications -->
-        <div class="main-heading">Certifications</div>
-        @if($resume->certification_name)
-            <div class="timeline-item">
-                <h3>{{ $resume->certification_name }}</h3>
-                <div class="date">{{ $resume->certification_year ?? 'N/A' }}</div>
-            </div>
-        @else
-            <p>N/A</p>
-        @endif
-    </td>
-</tr>
-</table>
+    <!-- Footer -->
+    <p style="margin-top:20pt; font-size:10pt; color:#555;">
+        Generated by MOBO Skills — {{ now()->format('Y') }}
+    </p>
 </body>
 </html>

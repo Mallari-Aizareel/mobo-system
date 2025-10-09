@@ -7,13 +7,15 @@ use App\Models\Resume;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\User;
 
 class TesdaResumeController extends Controller
 {
     public function index()
     {
         $resume = Resume::where('user_id', Auth::id())->first();
-        return view('tesda.create-resume', compact('resume'));
+        $user = User::find(Auth::id()); 
+        return view('tesda.create-resume', compact('resume', 'user'));
     }
 
     public function store(Request $request)
@@ -62,7 +64,8 @@ class TesdaResumeController extends Controller
         }
 
         // Generate PDF
-        $pdf = Pdf::loadView('tesda.resume-pdf', compact('resume'));
+        $user = Auth::user();
+        $pdf = Pdf::loadView('tesda.resume-pdf', compact('resume', 'user'));
         $fileName = 'resume_' . Auth::id() . '.pdf';
         $pdfPath = 'resumes/' . $fileName; // relative to storage/app/public
 
@@ -72,6 +75,7 @@ class TesdaResumeController extends Controller
         }
 
         // Save new PDF
+       
         $pdf->save(storage_path('app/public/' . $pdfPath));
 
         // Update DB with correct relative path
