@@ -19,7 +19,6 @@
             <table class="table table-bordered table-hover" id="agreements-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Agreement Name</th>
                         <th>Created At</th>
                         <th>Actions</th>
@@ -28,7 +27,6 @@
                 <tbody>
                     @foreach($agreements as $agreement)
                         <tr>
-                            <td>{{ $agreement->id }}</td>
                             <td>{{ $agreement->name }}</td>
                             <td>{{ $agreement->created_at->format('Y-m-d') }}</td>
                             <td>
@@ -43,7 +41,7 @@
                             </td>
                         </tr>
 
-                        {{-- Edit Modal for this agreement --}}
+                        {{-- Edit Modal --}}
                         <div class="modal fade" id="editAgreementModal{{ $agreement->id }}" tabindex="-1" role="dialog" aria-labelledby="editAgreementModalLabel{{ $agreement->id }}" aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <form action="{{ route('admin.agreements.update', $agreement->id) }}" method="POST">
@@ -73,7 +71,6 @@
                     @endforeach
                 </tbody>
             </table>
-
         </div>
     </div>
 
@@ -92,7 +89,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="agreement-name">Agreement Question</label>
-                            <input type="text" name="name" id="agreement-name" class="form-control" required placeholder="Enter agreement...">
+                            <textarea name="name" id="agreement-name" class="form-control" rows="3" required placeholder="Enter agreement..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -104,4 +101,18 @@
         </div>
     </div>
 
+@stop
+
+@section('css')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+@stop
+
+@section('js')
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#agreements-table').DataTable();
+});
+</script>
 @stop
