@@ -16,6 +16,7 @@ class UserCertificate extends Model
         'issued_date',
         'expiration_date',
         'status',
+        'remarks',
     ];
 
     protected $dates = ['issued_date', 'expiration_date'];

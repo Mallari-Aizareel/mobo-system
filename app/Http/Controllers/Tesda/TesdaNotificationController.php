@@ -127,11 +127,37 @@ public function index(Request $request)
             ];
         });
 
+        $expiredCerts = UserCertificate::with('user', 'course')
+        ->where('status', 'expired')
+        ->when($filter, function($q) use ($filter) {
+            if ($filter === 'new') {
+                $q->whereDate('updated_at', now());
+            } elseif ($filter === 'yesterday') {
+                $q->whereDate('updated_at', now()->subDay());
+            } elseif ($filter === '1_week') {
+                $q->where('updated_at', '>=', now()->subWeek());
+            } elseif ($filter === '2_weeks') {
+                $q->where('updated_at', '>=', now()->subWeeks(2));
+            } elseif ($filter === '1_month') {
+                $q->where('updated_at', '>=', now()->subMonth());
+            }
+        })
+        ->get()
+        ->map(function($cert) {
+            return [
+                'type' => 'expired_certificate',
+                'icon' => 'fas fa-certificate text-danger',
+               'text' => 'Your certificate for <strong>' . ($cert->course->name ?? 'a course') . '</strong> has <strong style="color:red">expired</strong>.',
+                'created_at' => $cert->updated_at,
+            ];
+        });
+
+
 
 
 
     // Merge all notifications
-    $notifications = $recommendations->merge($jobPosts)->merge($dropped)->merge($expiringCertificates)->sortByDesc('created_at');
+    $notifications = $recommendations->merge($jobPosts)->merge($dropped)->merge($expiredCerts)->merge($expiringCertificates)->sortByDesc('created_at');
 
     return view('tesda.notifications', compact('notifications', 'filter'));
 }

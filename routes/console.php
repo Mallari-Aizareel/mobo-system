@@ -11,3 +11,5 @@ Artisan::command('inspire', function () {
 Schedule::command('resumes:update-matches')->everyFiveMinutes();
 
 Schedule::command('notify:expiring-certificates')->everyFiveMinutes();
+
+Schedule::command('certificates:update-expired')->dailyAt('00:00');
