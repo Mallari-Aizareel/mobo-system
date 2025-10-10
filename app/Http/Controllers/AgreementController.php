@@ -23,4 +23,22 @@ class AgreementController extends Controller
 
         return redirect()->route('admin.agreements.index')->with('success', 'Agreement added successfully.');
     }
+
+    public function update(Request $request, Agreement $agreement)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $agreement->update(['name' => $request->name]);
+
+        return redirect()->route('admin.agreements.index')->with('success', 'Agreement updated successfully.');
+    }
+
+    public function destroy(Agreement $agreement)
+    {
+        $agreement->delete();
+        return redirect()->route('admin.agreements.index')->with('success', 'Agreement deleted successfully.');
+    }
+
 }

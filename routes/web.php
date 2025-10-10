@@ -102,6 +102,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         ->name('agreements.index');
     Route::post('/agreements', [AgreementController::class, 'store'])
         ->name('agreements.store');
+    Route::resource('admin/agreements', AgreementController::class)->except(['show', 'edit', 'create']);
+
 
    Route::get('/classes', [RoomController::class, 'index'])
         ->name('rooms.index');

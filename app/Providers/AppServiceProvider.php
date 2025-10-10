@@ -90,6 +90,11 @@ class AppServiceProvider extends ServiceProvider
             'url'  => 'admin/faqs',
             'icon' => 'fas fa-school',
         ],
+         [
+            'text' => 'Course Agreements',
+            'url'  => 'admin/agreements',
+            'icon' => 'fas fa-school',
+        ],
                 ];
             } elseif ($user->role_id == 2) { // TESDA
                $menu = [

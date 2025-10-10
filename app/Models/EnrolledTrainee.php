@@ -17,6 +17,7 @@ class EnrolledTrainee extends Model
         'status_id',
         'room_id',
         'reason',
+        'valid_id_verified',
     ];
 
     public function user()

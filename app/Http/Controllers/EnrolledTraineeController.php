@@ -70,7 +70,24 @@ class EnrolledTraineeController extends Controller
             ]);
         }
 
+
+        if ($request->hasFile('valid_id')) {
+            $validId = $request->file('valid_id');
+
+            if (in_array($validId->extension(), ['jpg','jpeg','png'])) {
+                list($width, $height) = getimagesize($validId);
+
+                // Assuming standard ID card ~ 85mm x 54mm,
+                // For digital image, maybe expect width: 400-1000px, height: 250-600px
+                if ($width < 400 || $height < 250) {
+                    return back()->withErrors(['valid_id' => 'Uploaded image seems too small for an ID.']);
+                }
+            }
+        }
+
         $validIdPath = $request->file('valid_id')->store('valid_ids', 'public');
+
+
         $certPath = $request->file('certificate')->store('certificates', 'public');
 
         EnrolledTrainee::create([
@@ -79,6 +96,7 @@ class EnrolledTraineeController extends Controller
             'valid_id'   => $validIdPath,
             'certificate'=> $certPath,
             'status_id' => 1,
+            'valid_id_verified' => false,
         ]);
 
         foreach ($request->agreements as $agreementId => $answer) {

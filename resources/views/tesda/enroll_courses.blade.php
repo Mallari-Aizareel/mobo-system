@@ -44,7 +44,8 @@
             {{-- Upload Requirements --}}
             <div class="form-group">
                 <label for="valid_id">Upload Valid ID</label>
-                <input type="file" name="valid_id" class="form-control-file" accept=".pdf,.png,.jpg,.jpeg" required>
+                <input type="file" name="valid_id" class="form-control-file" accept="image/*,.pdf" capture="environment" required>
+                <small class="form-text text-muted">You can take a photo or upload your valid ID (JPEG, PNG, PDF).</small>
             </div>
 
             <div class="form-group">
